@@ -1,0 +1,54 @@
+[global_config]
+  handle_size = 5
+  inactive_color_offset = 0.83
+  title_font = Ubuntu Mono 12
+  title_use_system_font = False
+[keybindings]
+  copy = <Primary>c
+  paste = <Primary>v
+[layouts]
+  [[default]]
+    [[[child1]]]
+      parent = window0
+      profile = gruvbox-light
+      type = Terminal
+    [[[window0]]]
+      parent = ""
+      type = Window
+[plugins]
+[profiles]
+  [[default]]
+    background_color = "#272822"
+    background_image = None
+    cursor_blink = False
+    cursor_color = "#ff9c9c"
+    font = Meslo LG L for Powerline 12
+    foreground_color = "#f0ffbd"
+    scrollback_infinite = True
+    scrollback_lines = 9999
+    show_titlebar = False
+    use_system_font = False
+  [[New Profile]]
+    background_image = None
+  [[grubbox-dark]]
+    background_color = "#282828"
+    background_image = None
+    cursor_blink = False
+    cursor_color = "#f91317"
+    font = Meslo LG S DZ for Powerline 10
+    foreground_color = "#ebdbb2"
+    palette = "#181818:#cc241d:#98971a:#d79921:#458588:#b16286:#689d6a:#a89984:#928374:#fb4934:#b8bb26:#fabd2f:#83a598:#d3869b:#8ec07c:#ebdbb2"
+    scrollback_infinite = True
+    scrollback_lines = 9999
+    use_system_font = False
+  [[gruvbox-light]]
+    background_color = "#fbf1c7"
+    background_image = None
+    cursor_blink = False
+    cursor_color = "#ec0910"
+    font = Meslo LG S DZ for Powerline 10
+    foreground_color = "#002b36"
+    palette = "#073642:#dc322f:#98af00:#b58900:#268bd2:#d33682:#2aa198:#eee8d5:#939393:#cb4b16:#8ea400:#b58900:#007988:#6c71c4:#93a1a1:#fdf6e3"
+    scrollback_infinite = True
+    scrollback_lines = 9999
+    use_system_font = False
