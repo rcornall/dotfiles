@@ -1,0 +1,24 @@
+.header-bar.default-decoration {
+    padding-top: 2px;
+    padding-bottom: 2px;
+    font-size: 0.9em;
+    color:#FDFDFA;
+    background-color:#43453b;
+    background-image:none;
+}
+
+.header-bar.default-decoration .button.titlebutton {
+    padding: 0px;
+}
+
+/* No line below the title bar */
+.ssd .titlebar {
+    border-width: 2px;
+    box-shadow: none;
+}
+
+.header-bar.default-decoration:backdrop {
+    color:#B8B8A2;
+    background-color:272822;
+    background-image:none;
+}
