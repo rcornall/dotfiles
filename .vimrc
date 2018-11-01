@@ -9,6 +9,7 @@ set updatetime=250 "ms
 set tags+=tags;$HOME " ctags look for tags file
 
 set mouse=a         " enable mouse support
+set ttymouse=xterm2 " enable mouse resizing
 set pastetoggle=<F2> " paste toggle
 
 set nocompatible    " fixes vundle issues on vim 8.0
@@ -58,14 +59,15 @@ set formatoptions+=1            " When wrapping paragraphs, don't end lines
 set shortmess+=I                " hide the launch screen
 set clipboard=unnamedplus       " yank goes into clipboard
 
+set shortmess+=I                " hide the launch screen
 " work-around to copy selected text to system clipboard
 " and prevent it from clearing clipboard when using ctrl+z (depends on xsel)
-function! CopyText()
-  normal gv"+y
-  :call system('xsel -ib', getreg('+'))
-endfunction
-nmap <leader>y :call CopyText()<CR>
-vmap <leader>y :call CopyText()<CR>
+" function! CopyText()
+  " normal gv"+y
+  " :call system('xsel -ib', getreg('+'))
+" endfunction
+" nmap <leader>y :call CopyText()<CR>
+" vmap <leader>y :call CopyText()<CR>
 
 " normal regexs
 nnoremap / /\v
@@ -74,10 +76,38 @@ vnoremap / /\v
 " Speed up scrolling of the viewport slightly
 nnoremap <C-e> 2<C-e>
 nnoremap <C-y> 2<C-y>
-set shortmess+=I                " hide the launch screen
+
 " enter=newline
 nmap <S-Enter> O<Esc>
 nmap <CR> o<Esc>
+
+" Weird fix to paster over without yanking...
+" https://stackoverflow.com/questions/290465/how-to-paste-over-without-overwriting-register
+" https://stackoverflow.com/a/4446608
+function! RestoreRegister()
+    let @" = s:restore_reg
+    if &clipboard == "unnamed"
+        let @* = s:restore_reg
+    elseif &clipboard == "unnamedplus"
+        let @+ = s:restore_reg
+    endif
+    return ''
+endfunction
+function! s:Repl()
+    let s:restore_reg = @"
+    return "p@=RestoreRegister()\<cr>"
+endfunction
+vnoremap <silent> <expr> p <sid>Repl()
+vnoremap <silent> <expr> P <sid>Repl()
+
+" Cursor changes shapes
+" let &t_SI.="\e[5 q"
+" let &t_SR.="\e[4 q"
+" let &t_EI.="\e[1 q"
+" Cursor no blinking
+let &t_SI.="\e[6 q"
+let &t_SR.="\e[4 q"
+let &t_EI.="\e[2 q"
 
 syntax on
 
@@ -88,6 +118,7 @@ au BufRead,BufNewFile *.bb set filetype=sh
 au BufRead,BufNewFile *.bbappend set filetype=sh
 au BufRead,BufNewFile *.inc set filetype=sh
 au BufRead,BufNewFile *.rule set filetype=lua
+au BufRead,BufNewFile *.action set filetype=lua
 au BufRead,BufNewFile *.map set filetype=lua
 au BufNewFile,BufRead * if expand('%:t') !~ '\.' | set filetype=sh | endif
 au BufNewFile,BufRead * if expand('%:t') == '' | set filetype=qf | endif
@@ -96,6 +127,14 @@ au BufNewFile,BufRead * if expand('%:t') == '.vimrc' | set filetype=vim | endif
 " PLUGINS SETTINGS AND COLOR SCHEMES
 " plug plugin manager
 call plug#begin('~/.vim/plugged')
+
+Plug 'scrooloose/nerdtree'
+Plug 'rking/ag.vim'
+Plug 'tpope/vim-fugitive'
+Plug 'terryma/vim-multiple-cursors'
+Plug 'scrooloose/nerdcommenter'
+Plug 'easymotion/vim-easymotion'
+Plug 'airblade/vim-gitgutter'
 
 Plug 'google/vim-maktaba'
 Plug 'google/vim-glaive'
@@ -124,6 +163,40 @@ Plug 'szw/vim-g'
 " tagbar
 Plug 'majutsushi/tagbar'
 
+Plug 'tpope/vim-obsession'
+
+" autocomplete
+Plug 'Shougo/neocomplete.vim'
+
+Plug 'kronos-io/kronos.vim'
+
+Plug 'ap/vim-buftabline'
+
+Plug 'octol/vim-cpp-enhanced-highlight'
+Plug 'morhetz/gruvbox'
+
+" Plug 'merlinrebrovic/focus.vim'
+" let g:focu
+""" FocusMode
+function! ToggleFocusMode()
+  if (&foldcolumn != 12)
+    set laststatus=0
+    set numberwidth=10
+    set foldcolumn=12
+    set noruler
+    hi FoldColumn ctermbg=none
+    hi LineNr ctermfg=0 ctermbg=none
+    hi NonText ctermfg=0
+  else
+    set laststatus=2
+    set numberwidth=4
+    set foldcolumn=0
+    set ruler
+    execute 'colorscheme ' . g:colors_name
+  endif
+endfunc
+nnoremap <F1> :call ToggleFocusMode()<cr>
+
 " Initialize plugin system
 call plug#end()
 call glaive#Install()
@@ -134,11 +207,11 @@ execute pathogen#infect()
 " make double-<Esc> clear search highlights
 nnoremap <silent> <Esc><Esc> <Esc>:nohlsearch<CR><Esc>
 
-highlight LineNr ctermfg=darkgrey  cterm=bold
+" highlight LineNr ctermfg=darkgrey  cterm=bold
 
 syn on se title
 
-" " autocmd vimenter * NERDTree "run nerdtree on start
+" autocmd vimenter * NERDTree "run nerdtree on start
 " let g:ctrlp_dont_split = 'nerdtree'
 
 " set runtimepath^=~/.vim/bundle/ctrlp.vim "something for ctrl-p plugin
@@ -186,8 +259,6 @@ nnoremap <C-K> <C-W><C-K>
 nnoremap <C-L> <C-W><C-L>
 nnoremap <C-H> <C-W><C-H>
 
-
-let g:airline_powerline_fonts = 1
 
 " easymotions
 map <Leader> <Plug>(easymotion-prefix)
@@ -239,11 +310,6 @@ if has("autocmd")
   endif
 endif
 
-" colorscheme Tomorrow-Night-Bright
-colorscheme PaperColor
-set background=dark
-let g:airline_theme='dark'
-" call AirlineTheme badcat
 
 
 
@@ -314,3 +380,29 @@ nnoremap <leader>b :call fzf#run({
 \   'options': '+m',
 \   'down':    len(<sid>buflist()) + 2
 \ })<CR>
+
+
+
+let g:airline_powerline_fonts = 1
+
+" Tomorrow theme
+colo Tomorrow-Night-Bright
+let g:airline_theme='tomorrow'
+
+" Seoul256 light
+" let g:seoul256_background = 252
+" colo seoul256
+" set background=light
+" let g:airline_theme='alduin'
+
+" gruvbox dark theme
+" colo gruvbox
+" set background=dark
+" let g:airline_theme='gruvbox'
+
+"
+" PaperColor dark
+" colo PaperColor
+" set background=dark
+" let g:airline_theme='tomorrow'
+

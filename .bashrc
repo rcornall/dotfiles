@@ -65,7 +65,8 @@ parse_git_branch() {
     git branch 2> /dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/ (\1)/'
 }
 
-export PS1="${debian_chroot:+($debian_chroot)}\[\033[01;32m\]\u@\h\[\033[00m\]:\[\033[01;34m\]\w\[\033[32m\]\$(parse_git_branch)\[\033[01;00m\]$ "
+# export PS1="${debian_chroot:+($debian_chroot)}\[\033[01;32m\]\u@\h\[\033[00m\]:\[\033[01;34m\]\w\[\033[32m\]\$(parse_git_branch)\[\033[01;00m\]$ "
+export PS1="${debian_chroot:+($debian_chroot)}\[\033[01;32m\]\u@\h\[\033[00m\] \[\033[01;34m\]\w\[\033[32m\]\$(parse_git_branch)\[\033[01;00m\] $ "
 
 unset color_prompt force_color_prompt
 
@@ -97,21 +98,14 @@ alias ll='ls -alF'
 alias la='ls -A'
 alias l='ls -CF'
 
-# workflow aliases
-alias mini='sudo minicom -c on -D /dev/ttyUSB0'
-alias mini1='sudo minicom -c on -D /dev/ttyUSB1'
-alias mini2='sudo minicom -c on -D /dev/ttyUSB2'
-alias mini3='sudo minicom -c on -D /dev/ttyUSB3'
 
-alias diff2bc="cp /home/$USER/.subversion/config_for_bc /home/$USER/.subversion/config"
-alias diff2console="cp /home/$USER/.subversion/config_for_review /home/$USER/.subversion/config"
+# alias diff2bc="cp /home/$USER/.subversion/config_for_bc /home/$USER/.subversion/config"
+# alias diff2console="cp /home/$USER/.subversion/config_for_review /home/$USER/.subversion/config"
 
 alias fix='printf "\e[?2004l"'
 
-# Add an "alert" alias for long running commands.  Use like so:
-#   sleep 10; alert
-
 alias tmux='tmux -2'
+
 # Alias definitions.
 # You may want to put all your additions into a separate file like
 # ~/.bash_aliases, instead of adding them here directly.
@@ -133,9 +127,16 @@ if ! shopt -oq posix; then
 fi
 
 [ -f ~/.fzf.bash ] && source ~/.fzf.bash
+
 #FZF ignore gitignores
 FZF_DEFAULT_COMMAND='ag -g --ignore tags --ignore build ""'
-alias fzi='vi $(fzf --height 40%)'
+
+function fzi() {
+  file=$(fzf --height 40%)
+  if [ -n "$file" ]; then
+    vi $file
+  fi
+}
 
 # fd - cd to selected directory
 fd() {
@@ -179,6 +180,21 @@ c() {
   fzf --ansi --multi | sed 's#.*\(https*://\)#\1#' | xargs $open > /dev/null 2> /dev/null
 }
 
+# fzfox - browse firefox history
+fzfox() {
+  local cols sep google_history open
+  cols=$(( COLUMNS / 3 ))
+  sep="∙"
+  google_history=$(ls -d $HOME/.mozilla/firefox/*.default/places.sqlite)
+  open=xdg-open
+  cp -f "$google_history" /tmp/h
+  sqlite3 -separator $sep /tmp/h \
+    "select substr(title, 1, $cols), url
+     from moz_places order by last_visit_date desc" |
+  awk -F $sep '{printf "%-'$cols's  \x1b[36m%s\x1b[m\n", $1, $2}' |
+  fzf --ansi --multi | sed 's#.*\(https*://\)#\1#' | xargs $open > /dev/null 2> /dev/null
+}
+
 # fkill - kill process
 fkill() {
   local pid
@@ -190,13 +206,18 @@ fkill() {
   fi
 }
 
-# fbr - checkout git branch (including remote branches)
+is_in_git_repo() {
+    git rev-parse HEAD > /dev/null 2>&1
+}
 fbr() {
-  local branches branch
-  branches=$(git branch --all | grep -v HEAD) &&
-  branch=$(echo "$branches" |
-           fzf-tmux -d $(( 2 + $(wc -l <<< "$branches") )) +m) &&
-  git checkout $(echo "$branch" | sed "s/.* //" | sed "s#remotes/[^/]*/##")
+  is_in_git_repo || return
+  branch=$(git branch -a --color=always | grep -v '/HEAD\s' | sort |
+  fzf --height 50% "$@" --border --ansi --multi --tac --preview-window right:70% |
+  sed 's/^..//' | cut -d' ' -f1 |
+  sed 's#^remotes/##')
+  if [ -n "$branch" ]; then
+    git checkout "$branch"
+  fi
 }
 
 # fshow - git commit browser
@@ -210,10 +231,19 @@ fshow() {
                 {}
 FZF-EOF"
 }
+flog() {
+  git log --graph --color=always \
+  	--format="%C(auto)%h%d %C(blue)%an %C(reset)%s %C(black)%C(bold)%cr" "$@" |
+           fzf --no-sort --reverse --tiebreak=index --no-multi \
+               --ansi --preview="$_viewGitLogLine" \
+               --header "enter to view, alt-y to copy hash" \
+               --bind "enter:execute:$_viewGitLogLine   | less -R" \
+               --bind "alt-y:execute:$_gitLogLineToHash | xclip"
+}
 
 alias glNoGraph='git log --color=always --format="%C(auto)%h%d %s %C(black)%C(bold)%cr% C(auto)%an" "$@"'
 _gitLogLineToHash="echo {} | grep -o '[a-f0-9]\{7\}' | head -1"
-_viewGitLogLine="$_gitLogLineToHash | xargs -I % sh -c 'git show --color=always % | diff-so-fancy'"
+_viewGitLogLine="$_gitLogLineToHash | xargs -I % sh -c 'git show --color=always % '"
 
 # fcoc_preview - checkout git commit with previews
 fcoc_preview() {
@@ -241,5 +271,14 @@ fcs() {
   commits=$(git log --color=always --pretty=oneline --abbrev-commit --reverse) &&
   commit=$(echo "$commits" | fzf --tac +s +m -e --ansi --reverse) &&
   echo -n $(echo "$commit" | sed "s/ .*//")
+}
+
+fdiff() {
+ local cmd="${FZF_CTRL_T_COMMAND:-"command git status -s"}"
+
+  eval "$cmd" | FZF_DEFAULT_OPTS="--height ${FZF_TMUX_HEIGHT:-40%} --reverse $FZF_DEFAULT_OPTS $FZF_CTRL_T_OPTS" fzf -m "$@" | while read -r item; do
+  git diff $(printf '%q ' "$item" | cut -d " " -f 2)
+  done
+  echo
 }
 
