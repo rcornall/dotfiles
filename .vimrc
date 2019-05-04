@@ -1,4 +1,4 @@
-let $VIMRUNTIME="/usr/share/vim/vim81"
+" let $VIMRUNTIME="/usr/share/vim/vim81"
 set t_BE=
 
 set t_Co=256 " vim airline needs more colors
