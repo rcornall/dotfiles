@@ -1,18 +1,22 @@
+let $VIMRUNTIME="/usr/share/vim/vim81"
 set t_BE=
+
 set t_Co=256 " vim airline needs more colors
 set encoding=utf-8
 
+let g:airline_highlighting_cache=1
 let mapleader = "," " remap leader
+set noesckeys
+
+set noea " dont autoresize splits
 
 set updatetime=250 "ms
 
-set tags+=tags;$HOME " ctags look for tags file
+set tags+=tags " ctags look for tags file
 
 set mouse=a         " enable mouse support
 set ttymouse=xterm2 " enable mouse resizing
 set pastetoggle=<F2> " paste toggle
-
-set nocompatible    " fixes vundle issues on vim 8.0
 
 " kernel tabs
 " set noexpandtab                              " use tabs, not spaces
@@ -21,8 +25,14 @@ set nocompatible    " fixes vundle issues on vim 8.0
 
 " aleos tabs
 set expandtab                                " use spaces
-set tabstop=4                                " tab this width of spaces
+" set tabstop=4                                " tab this width of spaces
+set softtabstop=4                                " tab this width of spaces
 set shiftwidth=4                             " indent this width of spaces
+
+noremap <buffer> <silent> k gk
+noremap <buffer> <silent> j gj
+
+set formatoptions+=j
 
 set backspace=indent,eol,start   " backspace will remove endls
 
@@ -31,6 +41,8 @@ set autoindent      "
 set number          " line numbers
 
 set hlsearch        " highlight search
+
+" set cursorline      " highlight cursorline
 
 set laststatus=2
 
@@ -60,18 +72,22 @@ set shortmess+=I                " hide the launch screen
 set clipboard=unnamedplus       " yank goes into clipboard
 
 set shortmess+=I                " hide the launch screen
+
 " work-around to copy selected text to system clipboard
 " and prevent it from clearing clipboard when using ctrl+z (depends on xsel)
-" function! CopyText()
-  " normal gv"+y
-  " :call system('xsel -ib', getreg('+'))
-" endfunction
-" nmap <leader>y :call CopyText()<CR>
-" vmap <leader>y :call CopyText()<CR>
+function! CopyText()
+  normal gv"+y
+  :call system('xsel -ib', getreg('+'))
+endfunction
+nmap <leader>y :call CopyText()<CR>
+vmap <leader>y :call CopyText()<CR>
 
 " normal regexs
 nnoremap / /\v
 vnoremap / /\v
+
+" scroll cursor with context
+set scrolloff=5
 
 " Speed up scrolling of the viewport slightly
 nnoremap <C-e> 2<C-e>
@@ -82,7 +98,6 @@ nmap <S-Enter> O<Esc>
 nmap <CR> o<Esc>
 
 " Weird fix to paster over without yanking...
-" https://stackoverflow.com/questions/290465/how-to-paste-over-without-overwriting-register
 " https://stackoverflow.com/a/4446608
 function! RestoreRegister()
     let @" = s:restore_reg
@@ -100,11 +115,7 @@ endfunction
 vnoremap <silent> <expr> p <sid>Repl()
 vnoremap <silent> <expr> P <sid>Repl()
 
-" Cursor changes shapes
-" let &t_SI.="\e[5 q"
-" let &t_SR.="\e[4 q"
-" let &t_EI.="\e[1 q"
-" Cursor no blinking
+" cursor shapes and no blinking
 let &t_SI.="\e[6 q"
 let &t_SR.="\e[4 q"
 let &t_EI.="\e[2 q"
@@ -112,29 +123,42 @@ let &t_EI.="\e[2 q"
 syntax on
 
 filetype plugin indent on
-" Set the filetype based on the file's extension, overriding any
-" " 'filetype' that has already been set
 au BufRead,BufNewFile *.bb set filetype=sh
 au BufRead,BufNewFile *.bbappend set filetype=sh
-au BufRead,BufNewFile *.inc set filetype=sh
-au BufRead,BufNewFile *.rule set filetype=lua
-au BufRead,BufNewFile *.action set filetype=lua
-au BufRead,BufNewFile *.map set filetype=lua
-au BufNewFile,BufRead * if expand('%:t') !~ '\.' | set filetype=sh | endif
-au BufNewFile,BufRead * if expand('%:t') == '' | set filetype=qf | endif
-au BufNewFile,BufRead * if expand('%:t') == '.vimrc' | set filetype=vim | endif
+au BufRead,BufNewFile config set filetype=config
+au BufRead,BufNewFile * if expand('%:t') == '' | set filetype=qf | endif
+au BufRead,BufNewFile * if expand('%:t') == '.vimrc' | set filetype=vim | endif
+
+set wildignore+=*\\artifacts\\*
+set wildignore+=*\\build\\*
+set wildignore+=*\\meta-openembedded\\*
+
+if has("autocmd")
+  " Highlight TODO, FIXME, NOTE, etc.
+  if v:version > 701
+    autocmd Syntax * call matchadd('Todo',  '\W\zs\(TODO\|FIXME\|CHANGED\|XXX\|BUG\|HACK\)')
+    autocmd Syntax * call matchadd('Debug', '\W\zs\(NOTE\|INFO\|IDEA\)')
+  endif
+endif
+
 
 " PLUGINS SETTINGS AND COLOR SCHEMES
-" plug plugin manager
 call plug#begin('~/.vim/plugged')
 
-Plug 'scrooloose/nerdtree'
+Plug 'junegunn/goyo.vim'
+let g:goyo_width=130
+let g:goyo_height=86
+let g:goyo_linenr=1
+
 Plug 'rking/ag.vim'
-Plug 'tpope/vim-fugitive'
+
 Plug 'terryma/vim-multiple-cursors'
 Plug 'scrooloose/nerdcommenter'
-Plug 'easymotion/vim-easymotion'
+
+Plug 'tpope/vim-fugitive'
 Plug 'airblade/vim-gitgutter'
+
+" Plug 'easymotion/vim-easymotion'
 
 Plug 'google/vim-maktaba'
 Plug 'google/vim-glaive'
@@ -144,7 +168,6 @@ Plug 'flazz/vim-colorschemes'
 Plug 'vim-airline/vim-airline'
 Plug 'vim-airline/vim-airline-themes'
 
-" Add fzf
 Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' }
 Plug 'junegunn/fzf.vim'
 
@@ -154,18 +177,21 @@ Plug 'machakann/vim-highlightedyank'
 
 Plug 'mhinz/vim-signify'
 
-" vim-surround
 Plug 'tpope/vim-surround'
 
-" google search
+Plug 'tpope/vim-vinegar'
+
+" neovim stuff
+"   Plug 'Shougo/defx.nvim'
+"   Plug 'roxma/nvim-yarp'
+"   Plug 'roxma/vim-hug-neovim-rpc'
+
 Plug 'szw/vim-g'
 
-" tagbar
 Plug 'majutsushi/tagbar'
 
 Plug 'tpope/vim-obsession'
 
-" autocomplete
 Plug 'Shougo/neocomplete.vim'
 
 Plug 'kronos-io/kronos.vim'
@@ -173,64 +199,48 @@ Plug 'kronos-io/kronos.vim'
 Plug 'ap/vim-buftabline'
 
 Plug 'octol/vim-cpp-enhanced-highlight'
+let g:cpp_class_scope_highlight = 1
+
 Plug 'morhetz/gruvbox'
 
-" Plug 'merlinrebrovic/focus.vim'
-" let g:focu
-""" FocusMode
-function! ToggleFocusMode()
-  if (&foldcolumn != 12)
-    set laststatus=0
-    set numberwidth=10
-    set foldcolumn=12
-    set noruler
-    hi FoldColumn ctermbg=none
-    hi LineNr ctermfg=0 ctermbg=none
-    hi NonText ctermfg=0
-  else
-    set laststatus=2
-    set numberwidth=4
-    set foldcolumn=0
-    set ruler
-    execute 'colorscheme ' . g:colors_name
-  endif
-endfunc
-nnoremap <F1> :call ToggleFocusMode()<cr>
+Plug 'brooth/far.vim'
+
+Plug 'benmills/vimux'
+
+Plug 'xolox/vim-misc'
+Plug 'xolox/vim-notes'
+Plug 'xolox/vim-colorscheme-switcher'
 
 " Initialize plugin system
 call plug#end()
 call glaive#Install()
 
-" for pathogen plugins
-execute pathogen#infect()
+" workaround to get gutter to stay in goyo
+function! MyGoyo()
+    :GitGutterDisable
+    :Goyo
+    :GitGutterEnable
+endfunction
+nnoremap <F1> :call MyGoyo()<CR>
 
-" make double-<Esc> clear search highlights
+" workaround to have color switches not break syntax highlighting
+function! ToggleLightDark()
+  if &background == 'dark'
+    set background=light
+    call xolox#colorscheme_switcher#switch_to("PaperColor")
+  else
+    set background=dark
+    call xolox#colorscheme_switcher#switch_to("gruvbox")
+  endif
+endfunction
+
+" clear search highlights
 nnoremap <silent> <Esc><Esc> <Esc>:nohlsearch<CR><Esc>
-
-" highlight LineNr ctermfg=darkgrey  cterm=bold
 
 syn on se title
 
-" autocmd vimenter * NERDTree "run nerdtree on start
-" let g:ctrlp_dont_split = 'nerdtree'
-
-" set runtimepath^=~/.vim/bundle/ctrlp.vim "something for ctrl-p plugin
-" let g:ctrlp_cache_dir = $HOME . '/.cache/ctrlp'
-" " AG instead of vims glob -> MAKES ctrl-P ~10X faster
-" if executable('ag')
-  " let g:ctrlp_user_command = 'ag %s -l --nocolor -g ""'
-" else
-  " echo "-----------NEED TO INSTALL AG-----------"
-" endif
-set wildignore+=*\\BUILD\\*
-set wildignore+=*\\BUILD.MACAN\\*
-set wildignore+=*\\BUILD.GX\\*
-set wildignore+=*\\BUILD.CAYENNE\\*
-set wildignore+=*\\artifacts\\*
-set wildignore+=*\\artifacts\\*
-set wildignore+=*\\build\\*
-set wildignore+=*\\meta-openembedded\\*
-" let g:ctrlp_custom_ignore+=build
+" run vinegar if no file specified
+autocmd vimenter * if @% == "" | execute "normal \<Plug>VinegarUp" | endif
 
 " nerdcommenter
 " Add spaces after comment delimiters by default
@@ -238,30 +248,33 @@ let g:NERDSpaceDelims = 1
 nnoremap <C-_> :call NERDComment(0,"toggle")<CR>
 vnoremap <C-_> :call NERDComment(0,"toggle")<CR>
 
-" let g:neocomplete#enable_at_startup = 1
+" neocomplete
+let g:neocomplete#enable_at_startup = 1
+let g:neocomplcache_disable_auto_complete = 1
+inoremap <expr><Tab>        pumvisible() ? "\<C-n>" : "\<Tab>"
 
-let g:ycm_server_python_interpreter = '/usr/bin/python'
-let g:ycm_show_diagnostics_ui = 0
+" ycm
+" let g:ycm_server_python_interpreter = '/usr/bin/python'
+" let g:ycm_show_diagnostics_ui = 0
+" nnoremap <C-]> :YcmCompleter GoToDefinitionElseDeclaration<CR>
 
-
-nnoremap <C-]> :YcmCompleter GoToDefinitionElseDeclaration<CR>
-function! s:Saving_scroll(cmd)
-  let save_scroll = &scroll
-  execute 'normal! ' . a:cmd
-  let &scroll = save_scroll
-endfunction
-" nnoremap <C-J> :call <SID>Saving_scroll("1<C-V><C-D>")<CR>
-" vnoremap <C-J> <Esc>:call <SID>Saving_scroll("gv1<C-V><C-D>")<CR>
-" nnoremap <C-K> :call <SID>Saving_scroll("1<C-V><C-U>")<CR>
-" vnoremap <C-K> <Esc>:call <SID>Saving_scroll("gv1<C-V><C-U>")<CR>
+" split navigation
 nnoremap <C-J> <C-W><C-J>
 nnoremap <C-K> <C-W><C-K>
 nnoremap <C-L> <C-W><C-L>
 nnoremap <C-H> <C-W><C-H>
 
-
 " easymotions
-map <Leader> <Plug>(easymotion-prefix)
+" map <Leader> <Plug>(easymotion-prefix)
+
+" notes
+nnoremap <leader>v :e ~/.vimrc<cr>
+nnoremap <leader>nt :Note todo \| set background=light \| call xolox#colorscheme_switcher#switch_to("PaperColor")<cr>
+vnoremap <leader>ns :NoteFromSelectedText  \| set background=light \| call xolox#colorscheme_switcher#switch_to("PaperColor")<cr>
+nnoremap <leader>nd :DeleteNote \| set background=light \| call xolox#colorscheme_switcher#switch_to("PaperColor")<cr>
+nnoremap <leader>nf :Files ~/.vim/plugged/vim-notes/misc/notes/user/ \| set background=light \| call xolox#colorscheme_switcher#switch_to("PaperColor")<cr>
+nnoremap <leader>d :set background=dark \| call xolox#colorscheme_switcher#switch_to("gruvbox")<cr>
+nnoremap <leader>l :set background=light \| call xolox#colorscheme_switcher#switch_to("PaperColor")<cr>
 
 " fzf settings
 " " Mapping selecting mappings
@@ -292,26 +305,12 @@ nnoremap <c-p> :Files<CR>
 nnoremap <leader>g :Google 
 
 "   :Find  - Start fzf with hidden preview window that can be enabled with "?"
-"   key
 "   :Find! - Start fzf in fullscreen and display the preview window above
 command! -bang -nargs=* Find
   \ call fzf#vim#ag(<q-args>,
   \                 <bang>0 ? fzf#vim#with_preview('up:60%')
   \                         : fzf#vim#with_preview('right:50%', '?'),
   \                 <bang>0)
-
-  " \                         : fzf#vim#with_preview('right:50%:hidden', '?'),
-
-if has("autocmd")
-  " Highlight TODO, FIXME, NOTE, etc.
-  if v:version > 701
-    autocmd Syntax * call matchadd('Todo',  '\W\zs\(TODO\|FIXME\|CHANGED\|XXX\|BUG\|HACK\)')
-    autocmd Syntax * call matchadd('Debug', '\W\zs\(NOTE\|INFO\|IDEA\)')
-  endif
-endif
-
-
-
 
 
 
@@ -386,23 +385,26 @@ nnoremap <leader>b :call fzf#run({
 let g:airline_powerline_fonts = 1
 
 " Tomorrow theme
-colo Tomorrow-Night-Bright
-let g:airline_theme='tomorrow'
+" colo Tomorrow-Night-Bright
+" let g:airline_theme='tomorrow'
 
 " Seoul256 light
 " let g:seoul256_background = 252
 " colo seoul256
 " set background=light
+" let g:airline_theme='tomorrow'
 " let g:airline_theme='alduin'
 
 " gruvbox dark theme
-" colo gruvbox
-" set background=dark
+colo gruvbox
+set background=dark
 " let g:airline_theme='gruvbox'
+let g:airline_theme='tomorrow'
 
 "
 " PaperColor dark
-" colo PaperColor
-" set background=dark
 " let g:airline_theme='tomorrow'
-
+" set background=dark
+" colo PaperColor
+"
+"" let g:airline_theme='tomorrow'
