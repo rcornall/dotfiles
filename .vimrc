@@ -123,8 +123,6 @@ let &t_EI.="\e[2 q"
 syntax on
 
 filetype plugin indent on
-au BufRead,BufNewFile *.bb set filetype=sh
-au BufRead,BufNewFile *.bbappend set filetype=sh
 au BufRead,BufNewFile config set filetype=config
 au BufRead,BufNewFile * if expand('%:t') == '' | set filetype=qf | endif
 au BufRead,BufNewFile * if expand('%:t') == '.vimrc' | set filetype=vim | endif
@@ -192,7 +190,13 @@ Plug 'majutsushi/tagbar'
 
 Plug 'tpope/vim-obsession'
 
-Plug 'Shougo/neocomplete.vim'
+" Plug 'Shougo/neocomplete.vim' --deprecated
+Plug 'Shougo/deoplete.nvim'
+Plug 'Shougo/deoplete.nvim'
+Plug 'Shougo/deoplete-clangx'
+Plug 'roxma/nvim-yarp'
+Plug 'roxma/vim-hug-neovim-rpc'
+let g:deoplete#enable_at_startup = 1
 
 Plug 'kronos-io/kronos.vim'
 
@@ -210,6 +214,8 @@ Plug 'benmills/vimux'
 Plug 'xolox/vim-misc'
 Plug 'xolox/vim-notes'
 Plug 'xolox/vim-colorscheme-switcher'
+
+Plug 'kergoth/vim-bitbake'
 
 " Initialize plugin system
 call plug#end()
@@ -408,3 +414,7 @@ let g:airline_theme='tomorrow'
 " colo PaperColor
 "
 "" let g:airline_theme='tomorrow'
+
+let g:airline_section_b = '%-0.16{airline#util#wrap(airline#extensions#hunks#get_hunks(),100)}%-0.16{airline#util#wrap(airline#extensions#branch#get_head(),80)}'
+let g:airline#extensions#tagbar#enabled = 0
+let g:airline_section_d = '%{getcwd()}'
