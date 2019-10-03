@@ -4,6 +4,13 @@ set t_BE=
 set t_Co=256 " vim airline needs more colors
 set encoding=utf-8
 
+" enable true colors
+if exists('+termguicolors')
+  let &t_8f = "\<Esc>[38;2;%lu;%lu;%lum"
+  let &t_8b = "\<Esc>[48;2;%lu;%lu;%lum"
+  set termguicolors
+endi
+
 let g:airline_highlighting_cache=1
 let mapleader = "," " remap leader
 set noesckeys
@@ -13,9 +20,15 @@ set noea " dont autoresize splits
 set updatetime=250 "ms
 
 set tags+=tags " ctags look for tags file
+" eg for global tags: set tags+=/home/rcornall/wd/both/cpp_tags,tags;
 
 set mouse=a         " enable mouse support
-set ttymouse=xterm2 " enable mouse resizing
+if has("mouse_sgr")
+    set ttymouse=sgr
+else
+    set ttymouse=xterm2
+end
+
 set pastetoggle=<F2> " paste toggle
 
 " kernel tabs
@@ -25,9 +38,12 @@ set pastetoggle=<F2> " paste toggle
 
 " aleos tabs
 set expandtab                                " use spaces
-" set tabstop=4                                " tab this width of spaces
-set softtabstop=4                                " tab this width of spaces
+set tabstop=4                                " tab this width of spaces
+" set softtabstop=4                                " tab this width of spaces
 set shiftwidth=4                             " indent this width of spaces
+
+
+" NOTE: <gj,gk> to move between displayed lines
 
 noremap <buffer> <silent> k gk
 noremap <buffer> <silent> j gj
@@ -124,6 +140,7 @@ syntax on
 
 filetype plugin indent on
 au BufRead,BufNewFile config set filetype=config
+au BufRead,BufNewFile messages set filetype=messages
 au BufRead,BufNewFile * if expand('%:t') == '' | set filetype=qf | endif
 au BufRead,BufNewFile * if expand('%:t') == '.vimrc' | set filetype=vim | endif
 
@@ -168,16 +185,18 @@ Plug 'vim-airline/vim-airline-themes'
 
 Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' }
 Plug 'junegunn/fzf.vim'
+Plug 'junegunn/gv.vim'
 
 Plug 'ntpeters/vim-better-whitespace'
 
 Plug 'machakann/vim-highlightedyank'
 
-Plug 'mhinz/vim-signify'
+" Plug 'mhinz/vim-signify'
 
 Plug 'tpope/vim-surround'
 
 Plug 'tpope/vim-vinegar'
+let g:netrw_banner = 0
 
 " neovim stuff
 "   Plug 'Shougo/defx.nvim'
@@ -191,7 +210,6 @@ Plug 'majutsushi/tagbar'
 Plug 'tpope/vim-obsession'
 
 " Plug 'Shougo/neocomplete.vim' --deprecated
-Plug 'Shougo/deoplete.nvim'
 Plug 'Shougo/deoplete.nvim'
 Plug 'Shougo/deoplete-clangx'
 Plug 'roxma/nvim-yarp'
@@ -217,9 +235,27 @@ Plug 'xolox/vim-colorscheme-switcher'
 
 Plug 'kergoth/vim-bitbake'
 
+" Plug 'ludovicchabant/vim-gutentags'
+
+Plug 'w0ng/vim-hybrid'
+
+Plug 'SirVer/ultisnips'
+Plug 'honza/vim-snippets'
+let g:UltiSnipsExpandTrigger = "<c-j>"
+
+" let g:hybrid_custom_term_colors = 1
+" let g:hybrid_reduced_contrast = 1 " Remove this line if using the default palette.
+
 " Initialize plugin system
 call plug#end()
 call glaive#Install()
+Glaive codefmt plugin[mappings]
+" Formats current line only
+nnoremap <silent> <leader>ff :FormatLines<CR>
+" Formats visual selection
+vnoremap <silent> <leader>ff :FormatLines<CR>
+" Formats entire file
+nnoremap <silent> <leader>fl :FormatCode<CR>
 
 " workaround to get gutter to stay in goyo
 function! MyGoyo()
@@ -239,6 +275,17 @@ function! ToggleLightDark()
     call xolox#colorscheme_switcher#switch_to("gruvbox")
   endif
 endfunction
+
+function! Build()
+    :call VimuxRunCommand("echo Put cmd here")
+endfunction
+
+nnoremap <leader>z :call VimuxRunCommand("echo put vimuxcmd here..")<cr>
+command! WriteAndBuild :write | call VimuxRunCommand("echo test vimux..")
+cnoreabbrev wb WriteAndBuild
+
+" sudo write
+cnoreabbrev ws :w !sudo tee %
 
 " clear search highlights
 nnoremap <silent> <Esc><Esc> <Esc>:nohlsearch<CR><Esc>
@@ -278,7 +325,7 @@ nnoremap <leader>v :e ~/.vimrc<cr>
 nnoremap <leader>nt :Note todo \| set background=light \| call xolox#colorscheme_switcher#switch_to("PaperColor")<cr>
 vnoremap <leader>ns :NoteFromSelectedText  \| set background=light \| call xolox#colorscheme_switcher#switch_to("PaperColor")<cr>
 nnoremap <leader>nd :DeleteNote \| set background=light \| call xolox#colorscheme_switcher#switch_to("PaperColor")<cr>
-nnoremap <leader>nf :Files ~/.vim/plugged/vim-notes/misc/notes/user/ \| set background=light \| call xolox#colorscheme_switcher#switch_to("PaperColor")<cr>
+nnoremap <leader>nf :Files /home/rcornall/.vim/plugged/vim-notes/misc/notes/user/<cr>
 nnoremap <leader>d :set background=dark \| call xolox#colorscheme_switcher#switch_to("gruvbox")<cr>
 nnoremap <leader>l :set background=light \| call xolox#colorscheme_switcher#switch_to("PaperColor")<cr>
 
@@ -293,7 +340,7 @@ imap <c-x><c-k> <plug>(fzf-complete-word)
 imap <c-x><c-f> <plug>(fzf-complete-path)
 imap <c-x><c-j> <plug>(fzf-complete-file-ag)
 imap <c-x><c-l> <plug>(fzf-complete-line)
-let $FZF_DEFAULT_COMMAND='ag -g ""'
+let $FZF_DEFAULT_COMMAND='ag --ignore tags --ignore build -g ""'
 
 " remap some easier search commands
 "   call ag and ag under word
@@ -302,7 +349,7 @@ nnoremap <c-a> :exe "Find " .expand('<cword>')<CR>
 
 "   call tags and tags under word
 nnoremap <leader>t :Tags<CR>
-nnoremap <C-t> :exe "Tags " .expand('<cword>')<CR>
+nnoremap <C-t> :exe "Tags " .expand('<cword>') ""<CR>
 
 nnoremap <c-p> :Files<CR>
 " nnoremap <silent> <leader>m :GFiles<CR>
@@ -317,6 +364,8 @@ command! -bang -nargs=* Find
   \                 <bang>0 ? fzf#vim#with_preview('up:60%')
   \                         : fzf#vim#with_preview('right:50%', '?'),
   \                 <bang>0)
+
+
 
 
 
@@ -395,19 +444,34 @@ let g:airline_powerline_fonts = 1
 " let g:airline_theme='tomorrow'
 
 " Seoul256 light
-" let g:seoul256_background = 252
 " colo seoul256
+" let g:seoul256_light_background = 252
 " set background=light
 " let g:airline_theme='tomorrow'
+
+" Seoul256 dark
+let g:seoul256_background = 235
+colo seoul256
+set background=dark
+let g:airline_theme='alduin'
+" let g:airline_theme='base16_shell'
+
+" Modified seoul
+" let g:seoul256_background = 235
+" colo seoul256-dawesome
+" set background=dark
 " let g:airline_theme='alduin'
+" let g:airline_theme='base16_shell'
 
 " gruvbox dark theme
-colo gruvbox
-set background=dark
+" colo gruvbox
+" set background=dark
 " let g:airline_theme='gruvbox'
-let g:airline_theme='tomorrow'
+" let g:airline_theme='tomorrow'
 
-"
+" colo hybrid
+" set background=dark
+
 " PaperColor dark
 " let g:airline_theme='tomorrow'
 " set background=dark
