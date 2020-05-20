@@ -1,21 +1,36 @@
 " let $VIMRUNTIME="/usr/share/vim/vim81"
+let mapleader = ","
+
 set t_BE=
-
-set t_Co=256 " vim airline needs more colors
+set t_Co=256
 set encoding=utf-8
+" enable true colors
+if exists('+termguicolors')
+  let &t_8f = "\<Esc>[38;2;%lu;%lu;%lum"
+  let &t_8b = "\<Esc>[48;2;%lu;%lu;%lum"
+  set termguicolors
+endi
 
-let g:airline_highlighting_cache=1
-let mapleader = "," " remap leader
+syntax on
+
+set title
+
 set noesckeys
 
 set noea " dont autoresize splits
 
 set updatetime=250 "ms
 
-set tags+=tags " ctags look for tags file
+set tags+=tags; " look for tags file
+" noremap <c-]> 2<c-]> " second tag is implementation, sometimes better
 
 set mouse=a         " enable mouse support
-set ttymouse=xterm2 " enable mouse resizing
+if has("mouse_sgr")
+    set ttymouse=sgr
+else
+    set ttymouse=xterm2
+end
+
 set pastetoggle=<F2> " paste toggle
 
 " kernel tabs
@@ -25,10 +40,14 @@ set pastetoggle=<F2> " paste toggle
 
 " aleos tabs
 set expandtab                                " use spaces
-" set tabstop=4                                " tab this width of spaces
-set softtabstop=4                                " tab this width of spaces
+set tabstop=4                                " tab this width of spaces
+set softtabstop=4                            " tab this width of spaces
 set shiftwidth=4                             " indent this width of spaces
 
+set virtualedit=
+
+" set foldmethod=syntax
+" NOTE: <gj,gk> to move between displayed lines
 noremap <buffer> <silent> k gk
 noremap <buffer> <silent> j gj
 
@@ -73,15 +92,6 @@ set clipboard=unnamedplus       " yank goes into clipboard
 
 set shortmess+=I                " hide the launch screen
 
-" work-around to copy selected text to system clipboard
-" and prevent it from clearing clipboard when using ctrl+z (depends on xsel)
-function! CopyText()
-  normal gv"+y
-  :call system('xsel -ib', getreg('+'))
-endfunction
-nmap <leader>y :call CopyText()<CR>
-vmap <leader>y :call CopyText()<CR>
-
 " normal regexs
 nnoremap / /\v
 vnoremap / /\v
@@ -97,7 +107,50 @@ nnoremap <C-y> 2<C-y>
 nmap <S-Enter> O<Esc>
 nmap <CR> o<Esc>
 
-" Weird fix to paster over without yanking...
+" split navigation
+nnoremap <C-J> <C-W><C-J>
+nnoremap <C-K> <C-W><C-K>
+nnoremap <C-L> <C-W><C-L>
+nnoremap <C-H> <C-W><C-H>
+
+" buf navigation
+nnoremap <Left> :bp<CR>
+nnoremap <Right> :bn<CR>
+
+" Jump to the last position in file
+if has("autocmd")
+  au BufReadPost * if line("'\"") > 1 && line("'\"") <= line("$") | exe "normal! g'\"" | endif
+endif
+
+" No Blink
+" let &t_SI.="\e[6 q"
+" let &t_SR.="\e[4 q"
+" let &t_EI.="\e[2 q"
+" Blink
+let &t_SI.="\e[5 q"
+let &t_SR.="\e[3 q"
+let &t_EI.="\e[1 q"
+
+
+filetype plugin indent on
+au BufRead,BufNewFile config set filetype=config
+au BufRead,BufNewFile messages set filetype=messages
+au BufRead,BufNewFile * if expand('%:t') == '' | set filetype=qf | endif
+au BufRead,BufNewFile * if expand('%:t') == '.vimrc' | set filetype=vim | endif
+
+set wildignore+=*\\artifacts\\*
+set wildignore+=*\\build\\*
+set wildignore+=*\\meta-openembedded\\*
+
+if has("autocmd")
+  " Highlight TODO, FIXME, NOTE, etc.
+  if v:version > 701
+    autocmd Syntax * call matchadd('Todo',  '\W\zs\(TODO\|FIXME\|CHANGED\|XXX\|BUG\|HACK\)')
+    autocmd Syntax * call matchadd('Debug', '\W\zs\(NOTE\|INFO\|IDEA\)')
+  endif
+endif
+
+" fix to paster over without yanking...
 " https://stackoverflow.com/a/4446608
 function! RestoreRegister()
     let @" = s:restore_reg
@@ -114,35 +167,16 @@ function! s:Repl()
 endfunction
 vnoremap <silent> <expr> p <sid>Repl()
 vnoremap <silent> <expr> P <sid>Repl()
+" work-around to copy selected text to system clipboard
+" and prevent it from clearing clipboard when using ctrl+z (depends on xsel)
+function! CopyText()
+  normal gv"+y
+  :call system('xsel -ib', getreg('+'))
+endfunction
+nmap <leader>y :call CopyText()<CR>
+vmap <leader>y :call CopyText()<CR>
 
-" cursor shapes and no blinking
-let &t_SI.="\e[6 q"
-let &t_SR.="\e[4 q"
-let &t_EI.="\e[2 q"
-
-syntax on
-
-filetype plugin indent on
-au BufRead,BufNewFile *.bb set filetype=sh
-au BufRead,BufNewFile *.bbappend set filetype=sh
-au BufRead,BufNewFile config set filetype=config
-au BufRead,BufNewFile * if expand('%:t') == '' | set filetype=qf | endif
-au BufRead,BufNewFile * if expand('%:t') == '.vimrc' | set filetype=vim | endif
-
-set wildignore+=*\\artifacts\\*
-set wildignore+=*\\build\\*
-set wildignore+=*\\meta-openembedded\\*
-
-if has("autocmd")
-  " Highlight TODO, FIXME, NOTE, etc.
-  if v:version > 701
-    autocmd Syntax * call matchadd('Todo',  '\W\zs\(TODO\|FIXME\|CHANGED\|XXX\|BUG\|HACK\)')
-    autocmd Syntax * call matchadd('Debug', '\W\zs\(NOTE\|INFO\|IDEA\)')
-  endif
-endif
-
-
-" PLUGINS SETTINGS AND COLOR SCHEMES
+" PLUGS
 call plug#begin('~/.vim/plugged')
 
 Plug 'junegunn/goyo.vim'
@@ -165,8 +199,10 @@ Plug 'google/vim-glaive'
 Plug 'google/vim-codefmt'
 
 Plug 'flazz/vim-colorschemes'
-Plug 'vim-airline/vim-airline'
-Plug 'vim-airline/vim-airline-themes'
+" Plug 'vim-airline/vim-airline'
+" Plug 'vim-airline/vim-airline-themes'
+" let g:airline_powerline_fonts = 1
+" let g:airline_highlighting_cache=1
 
 Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' }
 Plug 'junegunn/fzf.vim'
@@ -180,6 +216,7 @@ Plug 'mhinz/vim-signify'
 Plug 'tpope/vim-surround'
 
 Plug 'tpope/vim-vinegar'
+let g:netrw_banner = 0
 
 " neovim stuff
 "   Plug 'Shougo/defx.nvim'
@@ -192,7 +229,12 @@ Plug 'majutsushi/tagbar'
 
 Plug 'tpope/vim-obsession'
 
-Plug 'Shougo/neocomplete.vim'
+" Plug 'Shougo/neocomplete.vim' --deprecated
+Plug 'Shougo/deoplete.nvim'
+" Plug 'Shougo/deoplete-clangx'
+Plug 'roxma/nvim-yarp'
+" Plug 'roxma/vim-hug-neovim-rpc'
+" let g:deoplete#enable_at_startup = 1
 
 Plug 'kronos-io/kronos.vim'
 
@@ -211,9 +253,36 @@ Plug 'xolox/vim-misc'
 Plug 'xolox/vim-notes'
 Plug 'xolox/vim-colorscheme-switcher'
 
+Plug 'kergoth/vim-bitbake'
+
+" Plug 'ludovicchabant/vim-gutentags'
+
+Plug 'w0ng/vim-hybrid'
+
+Plug 'SirVer/ultisnips'
+Plug 'honza/vim-snippets'
+let g:UltiSnipsExpandTrigger = "<c-j>"
+
+Plug 'rhysd/git-messenger.vim'
+Plug 'tpope/vim-sleuth'
+Plug 'leafgarland/typescript-vim'
+
+" Plug 'lyuts/vim-rtags'
+source ~/.vim/gtags.vim
+
 " Initialize plugin system
 call plug#end()
 call glaive#Install()
+
+
+" PLUGIN & FUNCTION MAPPINGS
+Glaive codefmt plugin[mappings]
+" Formats current line only
+nnoremap <silent> <leader>ff :FormatLines<CR>
+" Formats visual selection
+vnoremap <silent> <leader>ff :FormatLines<CR>
+" Formats entire file
+nnoremap <silent> <leader>fl :FormatCode<CR>
 
 " workaround to get gutter to stay in goyo
 function! MyGoyo()
@@ -223,21 +292,20 @@ function! MyGoyo()
 endfunction
 nnoremap <F1> :call MyGoyo()<CR>
 
-" workaround to have color switches not break syntax highlighting
-function! ToggleLightDark()
-  if &background == 'dark'
-    set background=light
-    call xolox#colorscheme_switcher#switch_to("PaperColor")
-  else
-    set background=dark
-    call xolox#colorscheme_switcher#switch_to("gruvbox")
-  endif
-endfunction
+" switch to hpp/cpp
+command! -nargs=? -bar -bang Switch call CurtineIncSw()
+map <F2> :call CurtineIncSw()<CR>
+
+
+"" nnoremap <leader>z :call VimuxRunCommand("cd ..")<cr>
+" command! WriteAndBuild :write | call VimuxRunCommand("cd ~/wd/unity; source meta-distro/init-build-env; MACHINE=test bitbake packages")
+" cnoreabbrev wb WriteAndBuild
+
+" gen tags
+nnoremap <f12> :!retag<cr>
 
 " clear search highlights
 nnoremap <silent> <Esc><Esc> <Esc>:nohlsearch<CR><Esc>
-
-syn on se title
 
 " run vinegar if no file specified
 autocmd vimenter * if @% == "" | execute "normal \<Plug>VinegarUp" | endif
@@ -258,12 +326,6 @@ inoremap <expr><Tab>        pumvisible() ? "\<C-n>" : "\<Tab>"
 " let g:ycm_show_diagnostics_ui = 0
 " nnoremap <C-]> :YcmCompleter GoToDefinitionElseDeclaration<CR>
 
-" split navigation
-nnoremap <C-J> <C-W><C-J>
-nnoremap <C-K> <C-W><C-K>
-nnoremap <C-L> <C-W><C-L>
-nnoremap <C-H> <C-W><C-H>
-
 " easymotions
 " map <Leader> <Plug>(easymotion-prefix)
 
@@ -271,8 +333,6 @@ nnoremap <C-H> <C-W><C-H>
 nnoremap <leader>v :e ~/.vimrc<cr>
 nnoremap <leader>nt :Note todo \| set background=light \| call xolox#colorscheme_switcher#switch_to("PaperColor")<cr>
 vnoremap <leader>ns :NoteFromSelectedText  \| set background=light \| call xolox#colorscheme_switcher#switch_to("PaperColor")<cr>
-nnoremap <leader>nd :DeleteNote \| set background=light \| call xolox#colorscheme_switcher#switch_to("PaperColor")<cr>
-nnoremap <leader>nf :Files ~/.vim/plugged/vim-notes/misc/notes/user/ \| set background=light \| call xolox#colorscheme_switcher#switch_to("PaperColor")<cr>
 nnoremap <leader>d :set background=dark \| call xolox#colorscheme_switcher#switch_to("gruvbox")<cr>
 nnoremap <leader>l :set background=light \| call xolox#colorscheme_switcher#switch_to("PaperColor")<cr>
 
@@ -287,7 +347,7 @@ imap <c-x><c-k> <plug>(fzf-complete-word)
 imap <c-x><c-f> <plug>(fzf-complete-path)
 imap <c-x><c-j> <plug>(fzf-complete-file-ag)
 imap <c-x><c-l> <plug>(fzf-complete-line)
-let $FZF_DEFAULT_COMMAND='ag -g ""'
+let $FZF_DEFAULT_COMMAND='ag --ignore tags --ignore build -g ""'
 
 " remap some easier search commands
 "   call ag and ag under word
@@ -296,7 +356,7 @@ nnoremap <c-a> :exe "Find " .expand('<cword>')<CR>
 
 "   call tags and tags under word
 nnoremap <leader>t :Tags<CR>
-nnoremap <C-t> :exe "Tags " .expand('<cword>')<CR>
+nnoremap <C-t> :exe "Tags " .expand('<cword>') ""<CR>
 
 nnoremap <c-p> :Files<CR>
 " nnoremap <silent> <leader>m :GFiles<CR>
@@ -313,7 +373,7 @@ command! -bang -nargs=* Find
   \                 <bang>0)
 
 
-
+" FUNCTIONS
 function! s:align_lists(lists)
   let maxes = {}
   for list in a:lists
@@ -331,7 +391,7 @@ endfunction
 
 function! s:btags_source()
   let lines = map(split(system(printf(
-    \ 'ctags -f - --sort=no --excmd=number %s',
+    \ '/usr/bin/ctags -f - --sort=no --excmd=number %s',
     \ expand('%:S'))), "\n"), 'split(v:val, "\t")')
   if v:shell_error
     throw 'failed to extract tags'
@@ -360,8 +420,6 @@ endfunction
 command! BTags call s:btags()
 nnoremap <leader>r :BTags<CR>
 
-
-
 function! s:buflist()
   redir => ls
   silent ls
@@ -380,31 +438,86 @@ nnoremap <leader>b :call fzf#run({
 \   'down':    len(<sid>buflist()) + 2
 \ })<CR>
 
+function! s:todo() abort
+  let entries = []
+  for cmd in ['git grep -niI -e TODO -e FIXME -e XXX 2> /dev/null',
+            \ 'grep -rniI -e TODO -e FIXME -e XXX * 2> /dev/null']
+    let lines = split(system(cmd), '\n')
+    if v:shell_error != 0 | continue | endif
+    for line in lines
+      let [fname, lno, text] = matchlist(line, '^\([^:]*\):\([^:]*\):\(.*\)')[1:3]
+      call add(entries, { 'filename': fname, 'lnum': lno, 'text': text })
+    endfor
+    break
+  endfor
+
+  if !empty(entries)
+    call setqflist(entries)
+    copen
+  endif
+endfunction
+command! Todo call s:todo()
 
 
-let g:airline_powerline_fonts = 1
-
+" THEMES
 " Tomorrow theme
 " colo Tomorrow-Night-Bright
 " let g:airline_theme='tomorrow'
 
 " Seoul256 light
-" let g:seoul256_background = 252
+let g:seoul256_light_background = 252
+colo seoul256
+let g:airline_theme='tomorrow'
+set background=light
+
+" Seoul256 dark
+" let g:seoul256_background = 233
 " colo seoul256
-" set background=light
-" let g:airline_theme='tomorrow'
+" set background=dark
 " let g:airline_theme='alduin'
+" let g:airline_theme='base16_shell'
+
+" Modified seoul
+" let g:seoul256_background = 235
+" colo seoul256-dawesome
+" set background=dark
+" let g:airline_theme='alduin'
+" let g:airline_theme='base16_shell'
 
 " gruvbox dark theme
-colo gruvbox
-set background=dark
+" colo gruvbox
+" set background=dark
 " let g:airline_theme='gruvbox'
-let g:airline_theme='tomorrow'
+" let g:airline_theme='tomorrow'
 
-"
+" colo hybrid
+" set background=dark
+
 " PaperColor dark
 " let g:airline_theme='tomorrow'
 " set background=dark
 " colo PaperColor
 "
 "" let g:airline_theme='tomorrow'
+
+" colo tutticolori
+" let g:zenburn_high_Contrast = 1
+" let g:zenburn_alternate_Visual = 1
+" colo zenburn
+" hi GitGutterDeleteDefault guifg=#8f6161
+
+hi Statement cterm=bold
+hi Type cterm=bold
+
+" set cursorline
+au InsertEnter * set cursorline
+au InsertLeave * set nocursorline
+au BufLeave * set nocursorline
+
+" let g:airline_section_b = '%-0.16{airline#util#wrap(airline#extensions#hunks#get_hunks(),100)}%-0.16{airline#util#wrap(airline#extensions#branch#get_head(),80)}'
+" let g:airline#extensions#tagbar#enabled = 0
+" let g:airline_section_d = '%{getcwd()}'
+" let g:airline_left_sep='>'
+"
+" needs to be at end.. fixes weird insert issue
+set nocompatible
