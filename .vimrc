@@ -268,7 +268,7 @@ Plug 'tpope/vim-sleuth'
 Plug 'leafgarland/typescript-vim'
 
 " Plug 'lyuts/vim-rtags'
-source ~/.vim/gtags.vim
+" source ~/.vim/gtags.vim
 
 " Initialize plugin system
 call plug#end()
@@ -465,15 +465,15 @@ command! Todo call s:todo()
 " let g:airline_theme='tomorrow'
 
 " Seoul256 light
-let g:seoul256_light_background = 252
-colo seoul256
-let g:airline_theme='tomorrow'
-set background=light
+" let g:seoul256_light_background = 252
+" colo seoul256
+" let g:airline_theme='tomorrow'
+" set background=light
 
 " Seoul256 dark
-" let g:seoul256_background = 233
-" colo seoul256
-" set background=dark
+let g:seoul256_background = 233
+colo seoul256
+set background=dark
 " let g:airline_theme='alduin'
 " let g:airline_theme='base16_shell'
 
@@ -501,6 +501,7 @@ set background=light
 "" let g:airline_theme='tomorrow'
 
 " colo tutticolori
+"
 " let g:zenburn_high_Contrast = 1
 " let g:zenburn_alternate_Visual = 1
 " colo zenburn
