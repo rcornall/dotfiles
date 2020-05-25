@@ -264,11 +264,14 @@ Plug 'honza/vim-snippets'
 let g:UltiSnipsExpandTrigger = "<c-j>"
 
 Plug 'rhysd/git-messenger.vim'
+
 Plug 'tpope/vim-sleuth'
+
 Plug 'leafgarland/typescript-vim'
 
+Plug 'ericcurtin/CurtineIncSw.vim'
+
 " Plug 'lyuts/vim-rtags'
-" source ~/.vim/gtags.vim
 
 " Initialize plugin system
 call plug#end()
@@ -295,7 +298,6 @@ nnoremap <F1> :call MyGoyo()<CR>
 " switch to hpp/cpp
 command! -nargs=? -bar -bang Switch call CurtineIncSw()
 map <F2> :call CurtineIncSw()<CR>
-
 
 "" nnoremap <leader>z :call VimuxRunCommand("cd ..")<cr>
 " command! WriteAndBuild :write | call VimuxRunCommand("cd ~/wd/unity; source meta-distro/init-build-env; MACHINE=test bitbake packages")
@@ -331,6 +333,7 @@ inoremap <expr><Tab>        pumvisible() ? "\<C-n>" : "\<Tab>"
 
 " notes
 nnoremap <leader>v :e ~/.vimrc<cr>
+nnoremap <leader>vv :e ~/.vimrc<cr>
 nnoremap <leader>nt :Note todo \| set background=light \| call xolox#colorscheme_switcher#switch_to("PaperColor")<cr>
 vnoremap <leader>ns :NoteFromSelectedText  \| set background=light \| call xolox#colorscheme_switcher#switch_to("PaperColor")<cr>
 nnoremap <leader>d :set background=dark \| call xolox#colorscheme_switcher#switch_to("gruvbox")<cr>
@@ -471,7 +474,7 @@ command! Todo call s:todo()
 " set background=light
 
 " Seoul256 dark
-let g:seoul256_background = 233
+let g:seoul256_background = 236
 colo seoul256
 set background=dark
 " let g:airline_theme='alduin'
@@ -501,7 +504,7 @@ set background=dark
 "" let g:airline_theme='tomorrow'
 
 " colo tutticolori
-"
+
 " let g:zenburn_high_Contrast = 1
 " let g:zenburn_alternate_Visual = 1
 " colo zenburn
