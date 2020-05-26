@@ -299,8 +299,9 @@ nnoremap <F1> :call MyGoyo()<CR>
 command! -nargs=? -bar -bang Switch call CurtineIncSw()
 map <F2> :call CurtineIncSw()<CR>
 
-"" nnoremap <leader>z :call VimuxRunCommand("cd ..")<cr>
-" command! WriteAndBuild :write | call VimuxRunCommand("cd ~/wd/unity; source meta-distro/init-build-env; MACHINE=test bitbake packages")
+" Vimux example for yocto build
+" nnoremap <leader>z :call VimuxRunCommand("cd ..")<cr>
+" command! WriteAndBuild :write | call VimuxRunCommand("cd ~/wd/project; source meta-distro/init-build-env; MACHINE=test bitbake package")
 " cnoreabbrev wb WriteAndBuild
 
 " gen tags
