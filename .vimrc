@@ -218,11 +218,6 @@ Plug 'tpope/vim-surround'
 Plug 'tpope/vim-vinegar'
 let g:netrw_banner = 0
 
-" neovim stuff
-"   Plug 'Shougo/defx.nvim'
-"   Plug 'roxma/nvim-yarp'
-"   Plug 'roxma/vim-hug-neovim-rpc'
-
 Plug 'szw/vim-g'
 
 Plug 'majutsushi/tagbar'
@@ -230,11 +225,11 @@ Plug 'majutsushi/tagbar'
 Plug 'tpope/vim-obsession'
 
 " Plug 'Shougo/neocomplete.vim' --deprecated
+" pip3 install neovim
 Plug 'Shougo/deoplete.nvim'
-" Plug 'Shougo/deoplete-clangx'
 Plug 'roxma/nvim-yarp'
-" Plug 'roxma/vim-hug-neovim-rpc'
-" let g:deoplete#enable_at_startup = 1
+Plug 'roxma/vim-hug-neovim-rpc'
+let g:deoplete#enable_at_startup = 1
 
 Plug 'kronos-io/kronos.vim'
 
