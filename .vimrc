@@ -34,15 +34,15 @@ end
 set pastetoggle=<F2> " paste toggle
 
 " kernel tabs
-" set noexpandtab                              " use tabs, not spaces
-" set tabstop=8                                " tab this width of spaces
-" set shiftwidth=8                             " indent this width of spaces
+" set noexpandtab   " tabs, not spaces
+" set tabstop=8     " tab this width of spaces
+" set shiftwidth=8  " indent this width of spaces
 
-" aleos tabs
-set expandtab                                " use spaces
-set tabstop=4                                " tab this width of spaces
-set softtabstop=4                            " tab this width of spaces
-set shiftwidth=4                             " indent this width of spaces
+" app tabs
+set expandtab
+set tabstop=4
+set softtabstop=4
+set shiftwidth=4
 
 set virtualedit=
 
