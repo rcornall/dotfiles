@@ -267,6 +267,8 @@ Plug 'leafgarland/typescript-vim'
 
 Plug 'ericcurtin/CurtineIncSw.vim'
 
+Plug 'jiangmiao/auto-pairs'
+
 " Plug 'lyuts/vim-rtags'
 
 " Initialize plugin system
