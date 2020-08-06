@@ -186,7 +186,7 @@ let g:goyo_linenr=1
 
 Plug 'rking/ag.vim'
 
-Plug 'terryma/vim-multiple-cursors'
+Plug 'mg979/vim-visual-multi'
 Plug 'scrooloose/nerdcommenter'
 
 Plug 'tpope/vim-fugitive'
