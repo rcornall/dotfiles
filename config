@@ -5,10 +5,10 @@
   title_font = Ubuntu Mono 12
   title_use_system_font = False
 [keybindings]
-  copy = <Primary>c
+  copy = <Primary><Shift>c
   help = None
   layout_launcher = <Alt>backslash
-  paste = <Primary>v
+  paste = <Primary><Shift>v
 [layouts]
   [[default]]
     [[[child1]]]
@@ -24,6 +24,7 @@
 [profiles]
   [[default]]
     background_color = "#181b19"
+    background_darkness = 0.95
     cursor_blink = False
     cursor_color = "#ff9c9c"
     cursor_color_fg = False

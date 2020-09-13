@@ -69,6 +69,9 @@ set ruler
 
 set wildmenu
 
+silent call mkdir ($HOME.'/.vim/backup', 'p')
+silent call mkdir ($HOME.'/.vim/swap', 'p')
+silent call mkdir ($HOME.'/.vim/undo', 'p')
 set backupdir=~/.vim/backup// " store swps in diff directories
 set directory=~/.vim/swap//
 set undodir=~/.vim/undo//
@@ -177,6 +180,11 @@ nmap <leader>y :call CopyText()<CR>
 vmap <leader>y :call CopyText()<CR>
 
 " PLUGS
+if empty(glob('~/.vim/autoload/plug.vim'))
+  silent !curl -fLo ~/.vim/autoload/plug.vim --create-dirs
+    \ https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
+  autocmd VimEnter * PlugInstall --sync | source $MYVIMRC
+endif
 call plug#begin('~/.vim/plugged')
 
 Plug 'junegunn/goyo.vim'
