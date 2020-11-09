@@ -1,20 +1,44 @@
+# Enable Powerlevel10k instant prompt. Should stay close to the top of ~/.zshrc.
+# Initialization code that may require console input (password prompts, [y/n]
+# confirmations, etc.) must go above this block, everything else may go below.
+if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then
+  source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
+fi
+
+
 # If you come from bash you might have to change your $PATH.
 # export PATH=$HOME/bin:/usr/local/bin:$PATH
-
 # Path to your oh-my-zsh installation.
-  export ZSH="/home/rcornall/.oh-my-zsh"
-
+export ZSH="/home/rcornall/.oh-my-zsh"
 export TERM=xterm-256color
+
 foreground() {fg; zle redisplay}
 zle -N foreground
 bindkey '^f' foreground
+
+f1() {fg %1; zle redisplay}
+zle -N foreground1
+# bindkey '^1' foreground1
+
+f2() {fg %2; zle redisplay}
+zle -N foreground
+# bindkey '^1' foreground2
+
+f3() {fg %3; zle redisplay}
+zle -N foreground3
+# bindkey '^1' foreground3
+
+f4() {fg %4; zle redisplay}
+zle -N foreground4
+# bindkey '^1' foreground4
 # Set name of the theme to load --- if set to "random", it will
 # load a random theme each time oh-my-zsh is loaded, in which case,
 # to know which specific one was loaded, run: echo $RANDOM_THEME
 # See https://github.com/robbyrussell/oh-my-zsh/wiki/Themes
 # ZSH_THEME="robbyrussell"
 # ZSH_THEME="random"
-ZSH_THEME="spaceship"
+# ZSH_THEME="spaceship"
+ZSH_THEME="powerlevel10k/powerlevel10k"
 SPACESHIP_PROMPT_ORDER=(time user dir host git conda pyenv exec_time vi_mode exit_code char)
 DISABLE_AUTO_TITLE="true"
 SPACESHIP_PROMPT_ADD_NEWLINE="false"
@@ -71,12 +95,12 @@ ssh-add 2> /dev/null
 # ZSH_CUSTOM=/path/to/new-custom-folder
 
 # Which plugins would you like to load?
-# Standard plugins can be found in ~/.oh-my-zsh/plugins/*
+# Standard plugins can be found in ~/.Oh-my-zsh/plugins/*
 # Custom plugins may be added to ~/.oh-my-zsh/custom/plugins/
 # Example format: plugins=(rails git textmate ruby lighthouse)
 # Add wisely, as too many plugins slow down shell startup.
 plugins=(
-  git
+  gitfast
 )
 
 source $ZSH/oh-my-zsh.sh
@@ -113,7 +137,7 @@ source $ZSH/oh-my-zsh.sh
 alias ll='ls -alF'
 alias la='ls -A'
 alias l='ls -CF'
-
+alias mini=' minicom -c on -D /dev/ttyUSB0'
 alias tmux='tmux -2'
 alias bc='bc -l'
 
@@ -198,14 +222,6 @@ fkill() {
   fi
 }
 
-# fbr - checkout git branch (including remote branches)
-# fbr() {
-  # local branches branch
-  # branches=$(git branch --all | grep -v HEAD) &&
-  # branch=$(echo "$branches" |
-           # fzf-tmux -d $(( 2 + $(wc -l <<< "$branches") )) +m) &&
-  # git checkout $(echo "$branch" | sed "s/.* //" | sed "s#remotes/[^/]*/##")
-# }
 is_in_git_repo() {
     git rev-parse HEAD > /dev/null 2>&1
 }
@@ -290,6 +306,22 @@ function sshu () {
     done
 }
 
-export NVM_DIR="$HOME/.nvm"
-[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
-[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
+vd () {
+    f1=$(fzf --height 40%)
+    if [[ -n "$f1" ]]; then
+        f2=$(fzf --height 40%)
+        if [[ -n "$f1" ]]; then
+            vimdiff "$f1" "$f2"
+        fi
+    fi
+}
+
+# To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
+[[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
+
+# zplugs
+source ~/.zplug/init.zsh
+
+zplug 'wfxr/forgit'
+
+zplug load --verbose
