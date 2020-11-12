@@ -1,108 +1,120 @@
-" let $VIMRUNTIME="/usr/share/vim/vim81"
 let mapleader = ","
-
-set t_BE=
-set t_Co=256
-set encoding=utf-8
-" enable true colors
-if exists('+termguicolors')
-  let &t_8f = "\<Esc>[38;2;%lu;%lu;%lum"
-  let &t_8b = "\<Esc>[48;2;%lu;%lu;%lum"
-  set termguicolors
-endi
-
 syntax on
 
+" ____________________________________________________________________________
+" Basics {{{
+
 set title
-
+set shortmess+=I " hide launch screen
+set laststatus=2 " always show status line
 set noesckeys
-
-set noea " dont autoresize splits
-
 set updatetime=250 "ms
-
-set tags+=tags; " look for tags file
-" noremap <c-]> 2<c-]> " second tag is implementation, sometimes better
-
-set mouse=a         " enable mouse support
-if has("mouse_sgr")
-    set ttymouse=sgr
-else
-    set ttymouse=xterm2
-end
-
-set pastetoggle=<F2> " paste toggle
-
-" kernel tabs
-" set noexpandtab   " tabs, not spaces
-" set tabstop=8     " tab this width of spaces
-" set shiftwidth=8  " indent this width of spaces
-
-" app tabs
-set expandtab
-set tabstop=4
-set softtabstop=4
-set shiftwidth=4
-
-set virtualedit=
-
-" set foldmethod=syntax
-" NOTE: <gj,gk> to move between displayed lines
-noremap <buffer> <silent> k gk
-noremap <buffer> <silent> j gj
-
-set formatoptions+=j
-
-set backspace=indent,eol,start   " backspace will remove endls
-
-set autoindent      "
-
-set number          " line numbers
-
-set hlsearch        " highlight search
-
-" set cursorline      " highlight cursorline
-
-set laststatus=2
+set tags+=tags;
 
 set ruler
-
+set number
 set wildmenu
 
-silent call mkdir ($HOME.'/.vim/backup', 'p')
-silent call mkdir ($HOME.'/.vim/swap', 'p')
-silent call mkdir ($HOME.'/.vim/undo', 'p')
-set backupdir=~/.vim/backup// " store swps in diff directories
+" 4-spaces
+set et ts=4 sts=4 sw=4
+
+" kernel tabs
+" set noet ts=8 sw=8
+
+set scrolloff=5 " scroll cursor with context
+set noea        " dont autoresize splits
+set virtualedit=
+set formatoptions+=j
+set backspace=indent,eol,start  " backspace remove endls
+set autoindent
+
+set backupdir=~/.vim/backup// " store backups in isolated directories
 set directory=~/.vim/swap//
 set undodir=~/.vim/undo//
 set undofile
 set undolevels=1000
 set undoreload=10000
 
-set showmode        " always show what mode we're currently editing in
-set laststatus=2    " always show status line
+set hlsearch
+set ignorecase
+set smartcase   " ignore casing if all lower-case
+set incsearch   " show search matches as you type
 
-set ignorecase                  " ignore case when searching
-set smartcase                   " ignore case if search pattern is all lowercase,
-                                "    case-sensitive otherwise
-set incsearch                   " show search matches as you type
 set fileformat=unix
 set fileformats=unix,dos,mac
-set formatoptions+=1            " When wrapping paragraphs, don't end lines
-                                "    with 1-letter words
-set shortmess+=I                " hide the launch screen
-set clipboard=unnamedplus       " yank goes into clipboard
+set formatoptions+=1        " when wrapping paragraphs,
+                            " don't end with 1-letter words
+set clipboard=unnamedplus
+set foldmethod=syntax
+set foldlevelstart=99
 
-set shortmess+=I                " hide the launch screen
+" terminal settings and colors
+set t_BE=
+set t_Co=256
+set encoding=utf-8
+if exists('+termguicolors')
+  let &t_8f = "\<Esc>[38;2;%lu;%lu;%lum"
+  let &t_8b = "\<Esc>[48;2;%lu;%lu;%lum"
+  set termguicolors
+endi
+
+set mouse=a
+if has("mouse_sgr")
+    set ttymouse=sgr
+else
+    set ttymouse=xterm2
+end
+
+" cursor shapes + blink     " noblink
+let &t_SI.="\e[5 q"         " 6
+let &t_SR.="\e[3 q"         " 4
+let &t_EI.="\e[1 q"         " 2
+
+set pastetoggle=<F2>
+
+set wildignore+=*\\artifacts\\*
+set wildignore+=*\\build\\*
+set wildignore+=*\\meta-openembedded\\*
+
+" jump to the last known position in file
+au BufReadPost * if line("'\"") > 1 && line("'\"") <= line("$")
+      \ | exe "normal! g'\"" | endif
+
+" highlight line in insert mode
+au InsertEnter * set cursorline
+au InsertLeave * set nocursorline
+au BufLeave * set nocursorline
+
+filetype plugin indent on
+au BufRead,BufNewFile messages set filetype=messages
+au BufRead,BufNewFile * if expand('%:t') == '' | set filetype=qf | endif
+
+au Syntax * call matchadd('Todo',  '\W\zs\(TODO\|FIXME\|XXX\|BUG\|HACK\)')
+au Syntax * call matchadd('Debug', '\W\zs\(NOTE\|INFO\|IDEA\)')
+
+" simple statusline
+function! s:statusline_expr()
+  let mod = "%{&modified ? '[+] ' : !&modifiable ? '[x] ' : ''}"
+  let ro  = "%{&readonly ? '[RO] ' : ''}"
+  let ft  = "%{len(&filetype) ? '['.&filetype.'] ' : ''}"
+  let fug = "%{exists('g:loaded_fugitive') ? fugitive#statusline() : ''}"
+  let sep = ' %= '
+  let pos = ' %-12(%l : %c%V%) '
+  let pct = ' %P'
+
+  return '[%n] %F %<'.mod.ro.ft.fug.sep.pos.'%*'.pct
+endfunction
+let &statusline = s:statusline_expr()
+
+" }}}
+" ____________________________________________________________________________
+" Mappings {{{
 
 " normal regexs
 nnoremap / /\v
 vnoremap / /\v
 
-" scroll cursor with context
-set scrolloff=5
-
-" Speed up scrolling of the viewport slightly
+" speed up scrolling of the viewport slightly
 nnoremap <C-e> 2<C-e>
 nnoremap <C-y> 2<C-y>
 
@@ -120,40 +132,20 @@ nnoremap <C-H> <C-W><C-H>
 nnoremap <Left> :bp<CR>
 nnoremap <Right> :bn<CR>
 
-" Jump to the last position in file
-if has("autocmd")
-  au BufReadPost * if line("'\"") > 1 && line("'\"") <= line("$") | exe "normal! g'\"" | endif
-endif
+" <gj,gk> to move between displayed lines
+noremap <buffer> <silent> k gk
+noremap <buffer> <silent> j gj
 
-" No Blink
-" let &t_SI.="\e[6 q"
-" let &t_SR.="\e[4 q"
-" let &t_EI.="\e[2 q"
-" Blink
-let &t_SI.="\e[5 q"
-let &t_SR.="\e[3 q"
-let &t_EI.="\e[1 q"
+" Movement in insert mode
+inoremap <C-h> <C-o>h
+inoremap <C-l> <C-o>a
+inoremap <C-j> <C-o>j
+inoremap <C-k> <C-o>k
 
+" clear search highlights
+nnoremap <silent> <Esc><Esc> <Esc>:nohlsearch<CR><Esc>
 
-filetype plugin indent on
-au BufRead,BufNewFile config set filetype=config
-au BufRead,BufNewFile messages set filetype=messages
-au BufRead,BufNewFile * if expand('%:t') == '' | set filetype=qf | endif
-au BufRead,BufNewFile * if expand('%:t') == '.vimrc' | set filetype=vim | endif
-
-set wildignore+=*\\artifacts\\*
-set wildignore+=*\\build\\*
-set wildignore+=*\\meta-openembedded\\*
-
-if has("autocmd")
-  " Highlight TODO, FIXME, NOTE, etc.
-  if v:version > 701
-    autocmd Syntax * call matchadd('Todo',  '\W\zs\(TODO\|FIXME\|CHANGED\|XXX\|BUG\|HACK\)')
-    autocmd Syntax * call matchadd('Debug', '\W\zs\(NOTE\|INFO\|IDEA\)')
-  endif
-endif
-
-" fix to paster over without yanking...
+" fix to paster over without yanking
 " https://stackoverflow.com/a/4446608
 function! RestoreRegister()
     let @" = s:restore_reg
@@ -170,8 +162,9 @@ function! s:Repl()
 endfunction
 vnoremap <silent> <expr> p <sid>Repl()
 vnoremap <silent> <expr> P <sid>Repl()
+
 " work-around to copy selected text to system clipboard
-" and prevent it from clearing clipboard when using ctrl+z (depends on xsel)
+" and prevent it from clearing clipboard when using ctrl+z (need xsel)
 function! CopyText()
   normal gv"+y
   :call system('xsel -ib', getreg('+'))
@@ -179,12 +172,16 @@ endfunction
 nmap <leader>y :call CopyText()<CR>
 vmap <leader>y :call CopyText()<CR>
 
-" PLUGS
-if empty(glob('~/.vim/autoload/plug.vim'))
-  silent !curl -fLo ~/.vim/autoload/plug.vim --create-dirs
-    \ https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
-  autocmd VimEnter * PlugInstall --sync | source $MYVIMRC
-endif
+" Make Y behave like other capitals
+nnoremap Y y$
+
+" Last inserted text
+nnoremap g. :normal! `[v`]<cr><left>
+
+" }}}
+" ____________________________________________________________________________
+" Plugins {{{
+
 call plug#begin('~/.vim/plugged')
 
 Plug 'junegunn/goyo.vim'
@@ -194,23 +191,17 @@ let g:goyo_linenr=1
 
 Plug 'rking/ag.vim'
 
-Plug 'mg979/vim-visual-multi'
+Plug 'terryma/vim-multiple-cursors'
 Plug 'scrooloose/nerdcommenter'
 
 Plug 'tpope/vim-fugitive'
 Plug 'airblade/vim-gitgutter'
-
-" Plug 'easymotion/vim-easymotion'
 
 Plug 'google/vim-maktaba'
 Plug 'google/vim-glaive'
 Plug 'google/vim-codefmt'
 
 Plug 'flazz/vim-colorschemes'
-" Plug 'vim-airline/vim-airline'
-" Plug 'vim-airline/vim-airline-themes'
-" let g:airline_powerline_fonts = 1
-" let g:airline_highlighting_cache=1
 
 Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' }
 Plug 'junegunn/fzf.vim'
@@ -232,8 +223,6 @@ Plug 'majutsushi/tagbar'
 
 Plug 'tpope/vim-obsession'
 
-" Plug 'Shougo/neocomplete.vim' --deprecated
-" pip3 install neovim
 Plug 'Shougo/deoplete.nvim'
 Plug 'roxma/nvim-yarp'
 Plug 'roxma/vim-hug-neovim-rpc'
@@ -259,8 +248,6 @@ Plug 'xolox/vim-colorscheme-switcher'
 
 Plug 'kergoth/vim-bitbake'
 
-" Plug 'ludovicchabant/vim-gutentags'
-
 Plug 'w0ng/vim-hybrid'
 
 Plug 'SirVer/ultisnips'
@@ -275,16 +262,23 @@ Plug 'leafgarland/typescript-vim'
 
 Plug 'ericcurtin/CurtineIncSw.vim'
 
-Plug 'jiangmiao/auto-pairs'
-
+" Unused:
+" Plug 'easymotion/vim-easymotion'
+" Plug 'ludovicchabant/vim-gutentags'
 " Plug 'lyuts/vim-rtags'
 
-" Initialize plugin system
+" Plug 'vim-airline/vim-airline'
+" Plug 'vim-airline/vim-airline-themes'
+"  let g:airline_powerline_fonts = 1
+"  let g:airline_highlighting_cache=1
+
 call plug#end()
 call glaive#Install()
 
+" }}}
+" ____________________________________________________________________________
+" Plugin mappings {{{
 
-" PLUGIN & FUNCTION MAPPINGS
 Glaive codefmt plugin[mappings]
 " Formats current line only
 nnoremap <silent> <leader>ff :FormatLines<CR>
@@ -295,9 +289,9 @@ nnoremap <silent> <leader>fl :FormatCode<CR>
 
 " workaround to get gutter to stay in goyo
 function! MyGoyo()
-    :GitGutterDisable
-    :Goyo
-    :GitGutterEnable
+  :GitGutterDisable
+  :Goyo
+  :GitGutterEnable
 endfunction
 nnoremap <F1> :call MyGoyo()<CR>
 
@@ -305,74 +299,55 @@ nnoremap <F1> :call MyGoyo()<CR>
 command! -nargs=? -bar -bang Switch call CurtineIncSw()
 map <F2> :call CurtineIncSw()<CR>
 
-" Vimux example for yocto build
-" nnoremap <leader>z :call VimuxRunCommand("cd ..")<cr>
-" command! WriteAndBuild :write | call VimuxRunCommand("cd ~/wd/project; source meta-distro/init-build-env; MACHINE=test bitbake package")
-" cnoreabbrev wb WriteAndBuild
-
-" gen tags
+" regen tags
 nnoremap <f12> :!retag<cr>
 
-" clear search highlights
-nnoremap <silent> <Esc><Esc> <Esc>:nohlsearch<CR><Esc>
-
 " run vinegar if no file specified
-autocmd vimenter * if @% == "" | execute "normal \<Plug>VinegarUp" | endif
+au vimenter * if @% == "" | execute "normal \<Plug>VinegarUp" | endif
 
-" nerdcommenter
-" Add spaces after comment delimiters by default
+" nerdcommenter bindings and add space after comment delimiters
 let g:NERDSpaceDelims = 1
 nnoremap <C-_> :call NERDComment(0,"toggle")<CR>
 vnoremap <C-_> :call NERDComment(0,"toggle")<CR>
 
-" neocomplete
-let g:neocomplete#enable_at_startup = 1
-let g:neocomplcache_disable_auto_complete = 1
-inoremap <expr><Tab>        pumvisible() ? "\<C-n>" : "\<Tab>"
-
-" ycm
-" let g:ycm_server_python_interpreter = '/usr/bin/python'
-" let g:ycm_show_diagnostics_ui = 0
-" nnoremap <C-]> :YcmCompleter GoToDefinitionElseDeclaration<CR>
-
-" easymotions
-" map <Leader> <Plug>(easymotion-prefix)
-
 " notes
 nnoremap <leader>v :e ~/.vimrc<cr>
 nnoremap <leader>vv :e ~/.vimrc<cr>
+nnoremap <leader>vz :e ~/.zshrc<cr>
 nnoremap <leader>nt :Note todo \| set background=light \| call xolox#colorscheme_switcher#switch_to("PaperColor")<cr>
 vnoremap <leader>ns :NoteFromSelectedText  \| set background=light \| call xolox#colorscheme_switcher#switch_to("PaperColor")<cr>
-nnoremap <leader>d :set background=dark \| call xolox#colorscheme_switcher#switch_to("gruvbox")<cr>
+nnoremap <leader>d :set background=dark \| call xolox#colorscheme_switcher#switch_to("seoul256")<cr>
 nnoremap <leader>l :set background=light \| call xolox#colorscheme_switcher#switch_to("PaperColor")<cr>
 
-" fzf settings
-" " Mapping selecting mappings
-nmap <leader><tab> <plug>(fzf-maps-n)
-xmap <leader><tab> <plug>(fzf-maps-x)
-omap <leader><tab> <plug>(fzf-maps-o)
-
-" Insert mode completion
-imap <c-x><c-k> <plug>(fzf-complete-word)
-imap <c-x><c-f> <plug>(fzf-complete-path)
-imap <c-x><c-j> <plug>(fzf-complete-file-ag)
-imap <c-x><c-l> <plug>(fzf-complete-line)
+" FZF settings
 let $FZF_DEFAULT_COMMAND='ag --ignore tags --ignore build -g ""'
 
-" remap some easier search commands
 "   call ag and ag under word
 nnoremap <leader>a :Find 
 nnoremap <c-a> :exe "Find " .expand('<cword>')<CR>
 
 "   call tags and tags under word
 nnoremap <leader>t :Tags<CR>
-nnoremap <C-t> :exe "Tags " .expand('<cword>') ""<CR>
+nnoremap <c-t> :exe "Tags " .expand('<cword>') ""<CR>
 
-nnoremap <c-p> :Files<CR>
-" nnoremap <silent> <leader>m :GFiles<CR>
-"
-" remap google search
+"   find files
+nnoremap <c-p><c-p> :Files<CR>
+nnoremap <c-p><c-g> :GFiles<CR>
+
+"   find all mappings
+nmap <leader><tab> <plug>(fzf-maps-n)
+xmap <leader><tab> <plug>(fzf-maps-x)
+omap <leader><tab> <plug>(fzf-maps-o)
+
+"   insert mode completions
+imap <c-x><c-w> <plug>(fzf-complete-word)
+imap <c-x><c-d> <plug>(fzf-complete-path)
+imap <c-x><c-f> <plug>(fzf-complete-file-ag)
+imap <c-x><c-l> <plug>(fzf-complete-line)
+
+"   google search
 nnoremap <leader>g :Google 
+nnoremap <c-g> :exe "Google " .expand('<cword>')<CR>
 
 "   :Find  - Start fzf with hidden preview window that can be enabled with "?"
 "   :Find! - Start fzf in fullscreen and display the preview window above
@@ -382,8 +357,23 @@ command! -bang -nargs=* Find
   \                         : fzf#vim#with_preview('right:50%', '?'),
   \                 <bang>0)
 
+" Unused:
+" vimux examples
+" nnoremap <leader>z :call VimuxRunCommand("cd ..")<cr>
+" command! WriteAndBuild :write | call VimuxRunCommand("cd ~/wd/; ..")
+" cnoreabbrev wb WriteAndBuild
 
-" FUNCTIONS
+" ycm
+" let g:ycm_server_python_interpreter = '/usr/bin/python'
+" let g:ycm_show_diagnostics_ui = 0
+" nnoremap <C-]> :YcmCompleter GoToDefinitionElseDeclaration<CR>
+
+" easymotions
+" map <Leader> <Plug>(easymotion-prefix)
+
+" }}}
+" ____________________________________________________________________________
+" Functions {{{
 function! s:align_lists(lists)
   let maxes = {}
   for list in a:lists
@@ -468,8 +458,22 @@ function! s:todo() abort
 endfunction
 command! Todo call s:todo()
 
+" }}}
+" ____________________________________________________________________________
+" colors {{{
 
-" THEMES
+" Seoul256 dark
+let g:seoul256_background = 234
+colo seoul256
+
+" bold statements look better
+hi Statement cterm=bold
+hi Type cterm=bold
+
+" For transparent bg:
+" hi Normal guibg=NONE
+
+" Unused:
 " Tomorrow theme
 " colo Tomorrow-Night-Bright
 " let g:airline_theme='tomorrow'
@@ -477,15 +481,7 @@ command! Todo call s:todo()
 " Seoul256 light
 " let g:seoul256_light_background = 252
 " colo seoul256
-" let g:airline_theme='tomorrow'
 " set background=light
-
-" Seoul256 dark
-let g:seoul256_background = 236
-colo seoul256
-set background=dark
-" let g:airline_theme='alduin'
-" let g:airline_theme='base16_shell'
 
 " Modified seoul
 " let g:seoul256_background = 235
@@ -494,41 +490,29 @@ set background=dark
 " let g:airline_theme='alduin'
 " let g:airline_theme='base16_shell'
 
-" gruvbox dark theme
+" Gruvbox Dark
 " colo gruvbox
-" set background=dark
 " let g:airline_theme='gruvbox'
-" let g:airline_theme='tomorrow'
 
+" Hybrid
 " colo hybrid
-" set background=dark
 
 " PaperColor dark
-" let g:airline_theme='tomorrow'
-" set background=dark
 " colo PaperColor
-"
-"" let g:airline_theme='tomorrow'
+" let g:airline_theme='tomorrow'
 
+" Light themes
 " colo tutticolori
+" colo thegoodluck
 
+" Zenburn
 " let g:zenburn_high_Contrast = 1
 " let g:zenburn_alternate_Visual = 1
 " colo zenburn
 " hi GitGutterDeleteDefault guifg=#8f6161
 
-hi Statement cterm=bold
-hi Type cterm=bold
-
-" set cursorline
-au InsertEnter * set cursorline
-au InsertLeave * set nocursorline
-au BufLeave * set nocursorline
-
-" let g:airline_section_b = '%-0.16{airline#util#wrap(airline#extensions#hunks#get_hunks(),100)}%-0.16{airline#util#wrap(airline#extensions#branch#get_head(),80)}'
-" let g:airline#extensions#tagbar#enabled = 0
-" let g:airline_section_d = '%{getcwd()}'
-" let g:airline_left_sep='>'
-"
-" needs to be at end.. fixes weird insert issue
-set nocompatible
+" }}}
+" ____________________________________________________________________________
+" TODO
+" - clang formatter
+" - random color scheme cycler

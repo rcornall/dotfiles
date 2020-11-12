@@ -1,0 +1,1 @@
+tmux new-session \; unbind C-b \; set -g prefix C-s \; bind s send-prefix \; set -gw mode-keys vi \; set -g set-titles on \; bind C-d detach \;
