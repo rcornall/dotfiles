@@ -7,7 +7,6 @@ syntax on
 set title
 set shortmess+=I " hide launch screen
 set laststatus=2 " always show status line
-set noesckeys
 set updatetime=250 "ms
 set tags+=tags;
 
@@ -49,8 +48,6 @@ set foldmethod=syntax
 set foldlevelstart=99
 
 " terminal settings and colors
-set t_BE=
-set t_Co=256
 set encoding=utf-8
 if exists('+termguicolors')
   let &t_8f = "\<Esc>[38;2;%lu;%lu;%lum"
@@ -59,16 +56,28 @@ if exists('+termguicolors')
 endi
 
 set mouse=a
-if has("mouse_sgr")
-    set ttymouse=sgr
-else
-    set ttymouse=xterm2
+if !has('nvim')
+  if has("mouse_sgr")
+      set ttymouse=sgr
+  else
+      set ttymouse=xterm2
+  end
+end
+
+if !has('nvim')
+  set noesckeys
 end
 
 " cursor shapes + blink     " noblink
-let &t_SI.="\e[5 q"         " 6
-let &t_SR.="\e[3 q"         " 4
-let &t_EI.="\e[1 q"         " 2
+if !has('nvim')
+  set t_BE=
+  set t_Co=256
+  let &t_SI.="\e[5 q"         " 6
+  let &t_SR.="\e[3 q"         " 4
+  let &t_EI.="\e[1 q"         " 2
+else
+  set guicursor=n-v-c-sm:block,i-ci-ve:ver95-Cursor,r-cr-o:hor20
+end
 
 set pastetoggle=<F2>
 
@@ -223,11 +232,19 @@ Plug 'majutsushi/tagbar'
 
 Plug 'tpope/vim-obsession'
 
-Plug 'Shougo/deoplete.nvim'
-Plug 'roxma/nvim-yarp'
-Plug 'roxma/vim-hug-neovim-rpc'
-let g:deoplete#enable_at_startup = 1
 set completeopt=menu,noselect
+
+if has('nvim')
+  Plug 'neoclide/coc.nvim', {'branch': 'release'}
+  source ~/.config/nvim/coc.vim
+  " :CocInstall coc-json coc-python coc-snippets coc-clangd coc-cmake coc-vimlsp
+  set cmdheight=1
+else
+  Plug 'Shougo/deoplete.nvim'
+  Plug 'roxma/nvim-yarp'
+  Plug 'roxma/vim-hug-neovim-rpc'
+  let g:deoplete#enable_at_startup = 1
+end
 
 Plug 'kronos-io/kronos.vim'
 
@@ -250,9 +267,11 @@ Plug 'kergoth/vim-bitbake'
 
 Plug 'w0ng/vim-hybrid'
 
-Plug 'SirVer/ultisnips'
-Plug 'honza/vim-snippets'
-let g:UltiSnipsExpandTrigger = "<c-j>"
+if !has('nvim')
+  Plug 'SirVer/ultisnips'
+  Plug 'honza/vim-snippets'
+  let g:UltiSnipsExpandTrigger = "<c-j>"
+end
 
 Plug 'rhysd/git-messenger.vim'
 
@@ -313,6 +332,7 @@ vnoremap <C-_> :call NERDComment(0,"toggle")<CR>
 " notes
 nnoremap <leader>v :e ~/.vimrc<cr>
 nnoremap <leader>vv :e ~/.vimrc<cr>
+nnoremap <leader>vn :e ~/.config/nvim/init.vim<cr>
 nnoremap <leader>vz :e ~/.zshrc<cr>
 nnoremap <leader>nt :Note todo \| set background=light \| call xolox#colorscheme_switcher#switch_to("PaperColor")<cr>
 vnoremap <leader>ns :NoteFromSelectedText  \| set background=light \| call xolox#colorscheme_switcher#switch_to("PaperColor")<cr>
@@ -331,8 +351,8 @@ nnoremap <leader>t :Tags<CR>
 nnoremap <c-t> :exe "Tags " .expand('<cword>') ""<CR>
 
 "   find files
-nnoremap <c-p><c-p> :Files<CR>
-nnoremap <c-p><c-g> :GFiles<CR>
+nnoremap <c-p> :Files<CR>
+nnoremap <c-g> :GFiles<CR>
 
 "   find all mappings
 nmap <leader><tab> <plug>(fzf-maps-n)

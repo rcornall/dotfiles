@@ -1,0 +1,5 @@
+{
+  "clangd.enabled": true,
+  "clangd.path": "/home/rcornall/.config/coc/extensions/coc-clangd-data/install/11.0.0/clangd_11.0.0/bin/clangd",
+  "clangd.arguments": ["--background-index", "--log=verbose", "--query-driver=/../usr/bin/aarch64-poky-linux/aarch64-poky-linux-g++"]
+}
