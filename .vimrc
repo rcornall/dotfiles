@@ -338,6 +338,7 @@ nnoremap <leader>d :set background=dark \| call xolox#colorscheme_switcher#switc
 nnoremap <leader>l :set background=light \| call xolox#colorscheme_switcher#switch_to("PaperColor")<cr>
 
 " FZF settings
+let g:fzf_layout = { 'down': '40%' }
 let $FZF_DEFAULT_COMMAND='ag --ignore tags --ignore build -g ""'
 
 "   call ag and ag under word
