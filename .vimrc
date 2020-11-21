@@ -367,7 +367,7 @@ imap <c-x><c-l> <plug>(fzf-complete-line)
 
 "   google search
 nnoremap <leader>g :Google 
-nnoremap <c-g> :exe "Google " .expand('<cword>')<CR>
+" nnoremap <c-g> :exe "Google " .expand('<cword>')<CR>
 
 "   :Find  - Start fzf with hidden preview window that can be enabled with "?"
 "   :Find! - Start fzf in fullscreen and display the preview window above
