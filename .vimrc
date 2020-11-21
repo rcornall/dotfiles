@@ -8,7 +8,7 @@ set title
 set shortmess+=I " hide launch screen
 set laststatus=2 " always show status line
 set updatetime=250 "ms
-set tags+=tags;
+set tags+=tags,cpp_tags;
 
 set ruler
 set number
@@ -111,7 +111,7 @@ function! s:statusline_expr()
   let pos = ' %-12(%l : %c%V%) '
   let pct = ' %P'
 
-  return '[%n] %F %<'.mod.ro.ft.fug.sep.pos.'%*'.pct
+  return '%-F '.ro.ft.fug.mod.sep.pos.'%*'.pct
 endfunction
 let &statusline = s:statusline_expr()
 
@@ -148,8 +148,8 @@ noremap <buffer> <silent> j gj
 " Movement in insert mode
 inoremap <C-h> <C-o>h
 inoremap <C-l> <C-o>a
-inoremap <C-j> <C-o>j
-inoremap <C-k> <C-o>k
+" inoremap <C-j> <C-o>j
+" inoremap <C-k> <C-o>k
 
 " clear search highlights
 nnoremap <silent> <Esc><Esc> <Esc>:nohlsearch<CR><Esc>
@@ -224,7 +224,7 @@ Plug 'mhinz/vim-signify'
 Plug 'tpope/vim-surround'
 
 Plug 'tpope/vim-vinegar'
-let g:netrw_banner = 0
+let g:netrw_banner=0
 
 Plug 'szw/vim-g'
 
@@ -237,8 +237,16 @@ set completeopt=menu,noselect
 if has('nvim')
   Plug 'neoclide/coc.nvim', {'branch': 'release'}
   source ~/.config/nvim/coc.vim
-  " :CocInstall coc-json coc-python coc-snippets coc-clangd coc-cmake coc-vimlsp
+  " :CocInstall coc-json coc-python coc-snippets coc-clangd coc-cmake coc-vimlsp coc-explorer coc-fzf coc-sh
+  set statusline^=%{coc#status()}
   set cmdheight=1
+
+  Plug 'antoinemadec/coc-fzf'
+  let g:coc_fzf_preview = ''
+  let g:coc_fzf_opts = []
+
+  Plug 'wellle/context.vim'
+  let g:context_nvim_no_redraw = 1
 else
   Plug 'Shougo/deoplete.nvim'
   Plug 'roxma/nvim-yarp'
@@ -267,11 +275,9 @@ Plug 'kergoth/vim-bitbake'
 
 Plug 'w0ng/vim-hybrid'
 
-if !has('nvim')
-  Plug 'SirVer/ultisnips'
-  Plug 'honza/vim-snippets'
-  let g:UltiSnipsExpandTrigger = "<c-j>"
-end
+" Plug 'SirVer/ultisnips'
+" Plug 'honza/vim-snippets'
+" let g:UltiSnipsExpandTrigger = "<c-j>"
 
 Plug 'rhysd/git-messenger.vim'
 
@@ -280,6 +286,19 @@ Plug 'tpope/vim-sleuth'
 Plug 'leafgarland/typescript-vim'
 
 Plug 'ericcurtin/CurtineIncSw.vim'
+
+Plug 'unblevable/quick-scope'
+let g:qs_highlight_on_keys = ['f', 'F', 't', 'T']
+let g:qs_max_chars=150
+augroup qs_colors
+  autocmd!
+  autocmd ColorScheme * highlight QuickScopePrimary guifg='#2AFF00' gui=underline ctermfg=155 cterm=underline
+  autocmd ColorScheme * highlight QuickScopeSecondary guifg='#FF6565' gui=underline ctermfg=81 cterm=underline
+augroup END
+
+Plug 'justinmk/vim-sneak'
+let g:sneak#label = 1
+let g:sneak#prompt = "sneak> "
 
 " Unused:
 " Plug 'easymotion/vim-easymotion'
@@ -329,6 +348,10 @@ let g:NERDSpaceDelims = 1
 nnoremap <C-_> :call NERDComment(0,"toggle")<CR>
 vnoremap <C-_> :call NERDComment(0,"toggle")<CR>
 
+" move through git hunks
+nmap <leader>j <plug>(signify-next-hunk)
+nmap <leader>k <plug>(signify-prev-hunk)
+
 " notes
 nnoremap <leader>v :e ~/.vimrc<cr>
 nnoremap <leader>vv :e ~/.vimrc<cr>
@@ -340,6 +363,7 @@ nnoremap <leader>d :set background=dark \| call xolox#colorscheme_switcher#switc
 nnoremap <leader>l :set background=light \| call xolox#colorscheme_switcher#switch_to("PaperColor")<cr>
 
 " FZF settings
+let g:fzf_layout = { 'down': '40%' }
 let $FZF_DEFAULT_COMMAND='ag --ignore tags --ignore build -g ""'
 
 "   call ag and ag under word
@@ -394,6 +418,20 @@ command! -bang -nargs=* Find
 " }}}
 " ____________________________________________________________________________
 " Functions {{{
+
+function! s:GoToDefinition()
+  if CocAction('jumpDefinition')
+    return v:true
+  endif
+
+  let ret = execute("silent! normal \<C-]>")
+  if ret =~ "Error" || ret =~ "错误"
+    call searchdecl(expand('<cword>'))
+  endif
+endfunction
+
+nmap <silent> gd :call <SID>GoToDefinition()<CR>
+
 function! s:align_lists(lists)
   let maxes = {}
   for list in a:lists
@@ -485,6 +523,8 @@ command! Todo call s:todo()
 " Seoul256 dark
 let g:seoul256_background = 234
 colo seoul256
+ " Missing in upstream vi-colorschemes for seoul256
+hi NormalFloat ctermbg=235 guibg=#333233
 
 " bold statements look better
 hi Statement cterm=bold
