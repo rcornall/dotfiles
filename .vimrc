@@ -526,11 +526,6 @@ colo seoul256
  " Missing in upstream vi-colorschemes for seoul256
 hi NormalFloat ctermbg=235 guibg=#333233
 
-" bold statements look better
-hi Statement cterm=bold gui=bold
-hi Type cterm=bold gui=bold
-hi Comment cterm=italic gui=italic
-
 " For transparent bg:
 " hi Normal guibg=NONE
 
@@ -567,10 +562,17 @@ hi Comment cterm=italic gui=italic
 " colo thegoodluck
 
 " Zenburn
+" colo zenburn
 " let g:zenburn_high_Contrast = 1
 " let g:zenburn_alternate_Visual = 1
-" colo zenburn
-" hi GitGutterDeleteDefault guifg=#8f6161
+" hi! DiffDelete ctermfg=210 guifg=#ee877d
+" hi! DiffAdd ctermfg=108 guifg=#88b888
+" hi! DiffChange ctermfg=228 guifg=#fff176
+
+" Bold statements look better.
+hi Statement cterm=bold gui=bold
+hi Type cterm=bold gui=bold
+hi Comment cterm=italic gui=italic
 
 " }}}
 " ____________________________________________________________________________
