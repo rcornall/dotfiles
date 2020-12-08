@@ -113,7 +113,7 @@ function! s:statusline_expr()
 
   return '%-F '.ro.ft.fug.mod.sep.pos.'%*'.pct
 endfunction
-let &statusline = s:statusline_expr()
+" let &statusline = s:statusline_expr()
 
 " }}}
 " ____________________________________________________________________________
@@ -238,7 +238,7 @@ if has('nvim')
   Plug 'neoclide/coc.nvim', {'branch': 'release'}
   source ~/.config/nvim/coc.vim
   " :CocInstall coc-json coc-python coc-snippets coc-clangd coc-cmake coc-vimlsp coc-explorer coc-fzf coc-sh
-  set statusline^=%{coc#status()}
+  set statusline=%f\ %h%w%m%r%=%{coc#status()}%-14.(%l,%c%V%)\ %P
   set cmdheight=1
 
   Plug 'antoinemadec/coc-fzf'
@@ -527,8 +527,9 @@ colo seoul256
 hi NormalFloat ctermbg=235 guibg=#333233
 
 " bold statements look better
-hi Statement cterm=bold
-hi Type cterm=bold
+hi Statement cterm=bold gui=bold
+hi Type cterm=bold gui=bold
+hi Comment cterm=italic gui=italic
 
 " For transparent bg:
 " hi Normal guibg=NONE
