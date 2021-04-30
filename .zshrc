@@ -1,53 +1,29 @@
-stty -ixon
-
 # Enable Powerlevel10k instant prompt. Should stay close to the top of ~/.zshrc.
 # Initialization code that may require console input (password prompts, [y/n]
-# confirmations, etc.) must go above this block, everything else may go below.
+# confirmations, etc.) must go above this block; everything else may go below.
 if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then
   source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
 fi
 
-
 # If you come from bash you might have to change your $PATH.
 # export PATH=$HOME/bin:/usr/local/bin:$PATH
+
 # Path to your oh-my-zsh installation.
 export ZSH="/home/rcornall/.oh-my-zsh"
-export TERM=xterm-256color
 
-foreground() {fg; zle redisplay}
-zle -N foreground
-bindkey '^f' foreground
-
-f1() {fg %1; zle redisplay}
-zle -N foreground1
-# bindkey '^1' foreground1
-
-f2() {fg %2; zle redisplay}
-zle -N foreground
-# bindkey '^1' foreground2
-
-f3() {fg %3; zle redisplay}
-zle -N foreground3
-# bindkey '^1' foreground3
-
-f4() {fg %4; zle redisplay}
-zle -N foreground4
-# bindkey '^1' foreground4
 # Set name of the theme to load --- if set to "random", it will
 # load a random theme each time oh-my-zsh is loaded, in which case,
 # to know which specific one was loaded, run: echo $RANDOM_THEME
-# See https://github.com/robbyrussell/oh-my-zsh/wiki/Themes
-# ZSH_THEME="robbyrussell"
-# ZSH_THEME="random"
-# ZSH_THEME="spaceship"
+# See https://github.com/ohmyzsh/ohmyzsh/wiki/Themes
 ZSH_THEME="powerlevel10k/powerlevel10k"
+export TERM=xterm-256color
 SPACESHIP_PROMPT_ORDER=(time user dir host git conda pyenv exec_time vi_mode exit_code char)
 DISABLE_AUTO_TITLE="true"
 SPACESHIP_PROMPT_ADD_NEWLINE="false"
 
 # Set list of themes to pick from when loading at random
 # Setting this variable when ZSH_THEME=random will cause zsh to load
-# a theme from this variable instead of looking in ~/.oh-my-zsh/themes/
+# a theme from this variable instead of looking in $ZSH/themes/
 # If set to an empty array, this variable will have no effect.
 # ZSH_THEME_RANDOM_CANDIDATES=( "robbyrussell" "agnoster" )
 
@@ -61,8 +37,14 @@ SPACESHIP_PROMPT_ADD_NEWLINE="false"
 # Uncomment the following line to disable bi-weekly auto-update checks.
 # DISABLE_AUTO_UPDATE="true"
 
+# Uncomment the following line to automatically update without prompting.
+# DISABLE_UPDATE_PROMPT="true"
+
 # Uncomment the following line to change how often to auto-update (in days).
 # export UPDATE_ZSH_DAYS=13
+
+# Uncomment the following line if pasting URLs and other text is messed up.
+# DISABLE_MAGIC_FUNCTIONS="true"
 
 # Uncomment the following line to disable colors in ls.
 # DISABLE_LS_COLORS="true"
@@ -74,6 +56,8 @@ SPACESHIP_PROMPT_ADD_NEWLINE="false"
 # ENABLE_CORRECTION="true"
 
 # Uncomment the following line to display red dots whilst waiting for completion.
+# Caution: this setting can cause issues with multiline prompts (zsh 5.7.1 and newer seem to work)
+# See https://github.com/ohmyzsh/ohmyzsh/issues/5765
 # COMPLETION_WAITING_DOTS="true"
 
 # Uncomment the following line if you want to disable marking untracked files
@@ -89,7 +73,7 @@ SPACESHIP_PROMPT_ADD_NEWLINE="false"
 # see 'man strftime' for details.
 # HIST_STAMPS="mm/dd/yyyy"
 
-setopt PUSHDSILENT
+# setopt PUSHDSILENT
 setopt NO_NOMATCH
 ssh-add 2> /dev/null
 
@@ -97,12 +81,13 @@ ssh-add 2> /dev/null
 # ZSH_CUSTOM=/path/to/new-custom-folder
 
 # Which plugins would you like to load?
-# Standard plugins can be found in ~/.Oh-my-zsh/plugins/*
-# Custom plugins may be added to ~/.oh-my-zsh/custom/plugins/
+# Standard plugins can be found in $ZSH/plugins/
+# Custom plugins may be added to $ZSH_CUSTOM/plugins/
 # Example format: plugins=(rails git textmate ruby lighthouse)
 # Add wisely, as too many plugins slow down shell startup.
 plugins=(
-  gitfast
+	gitfast
+	zsh-autosuggestions
 )
 
 source $ZSH/oh-my-zsh.sh
@@ -124,9 +109,6 @@ source $ZSH/oh-my-zsh.sh
 # Compilation flags
 # export ARCHFLAGS="-arch x86_64"
 
-# ssh
-# export SSH_KEY_PATH="~/.ssh/rsa_id"
-
 # Set personal aliases, overriding those provided by oh-my-zsh libs,
 # plugins, and themes. Aliases can be placed here, though oh-my-zsh
 # users are encouraged to define aliases within the ZSH_CUSTOM folder.
@@ -139,9 +121,9 @@ source $ZSH/oh-my-zsh.sh
 alias ll='ls -alF'
 alias la='ls -A'
 alias l='ls -CF'
-alias mini=' minicom -c on -D /dev/ttyUSB0'
 alias tmux='tmux -2'
 alias bc='bc -l'
+
 
 # fzf!
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
@@ -224,6 +206,14 @@ fkill() {
   fi
 }
 
+# fbr - checkout git branch (including remote branches)
+# fbr() {
+  # local branches branch
+  # branches=$(git branch --all | grep -v HEAD) &&
+  # branch=$(echo "$branches" |
+           # fzf-tmux -d $(( 2 + $(wc -l <<< "$branches") )) +m) &&
+  # git checkout $(echo "$branch" | sed "s/.* //" | sed "s#remotes/[^/]*/##")
+# }
 is_in_git_repo() {
     git rev-parse HEAD > /dev/null 2>&1
 }
@@ -249,9 +239,10 @@ fshow() {
                 {}
 FZF-EOF"
 }
+
 flog() {
   git log --graph --color=always \
-  	--format="%C(auto)%h%d %C(blue)%an %C(reset)%s %C(black)%C(bold)%cr" "$@" |
+        --format="%C(auto)%h%d %C(blue)%an %C(reset)%s %C(black)%C(bold)%cr" "$@" |
            fzf --no-sort --reverse --tiebreak=index --no-multi \
                --ansi --preview="$_viewGitLogLine" \
                --header "enter to view, alt-y to copy hash" \
@@ -282,24 +273,6 @@ fshow_preview() {
                 --bind "alt-y:execute:$_gitLogLineToHash | xclip"
 }
 
-# fcs - get git commit sha
-# example usage: git rebase -i `fcs`
-fcs() {
-  local commits commit
-  commits=$(git log --color=always --pretty=oneline --abbrev-commit --reverse) &&
-  commit=$(echo "$commits" | fzf --tac +s +m -e --ansi --reverse) &&
-  echo -n $(echo "$commit" | sed "s/ .*//")
-}
-
-fdiff() {
- local cmd="${FZF_CTRL_T_COMMAND:-"command git status -s"}"
-
-  eval "$cmd" | FZF_DEFAULT_OPTS="--height ${FZF_TMUX_HEIGHT:-40%} --reverse $FZF_DEFAULT_OPTS $FZF_CTRL_T_OPTS" fzf -m "$@" | while read -r item; do
-  git diff $(printf '%q ' "$item" | cut -d " " -f 2)
-  done
-  echo
-}
-
 function sshu () {
     RET=1
     while [[ $RET -ne 0 ]]; do
@@ -317,7 +290,6 @@ vd () {
         fi
     fi
 }
-
 # To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
 [[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
 
@@ -327,3 +299,46 @@ source ~/.zplug/init.zsh
 zplug 'wfxr/forgit'
 
 zplug load
+
+alias gst="git status"
+alias ga="forgit::add"
+alias gcf="forgit::restore"
+alias gco="forgit::restore"
+alias gcl="forgit::clean"
+alias gclean="forgit::clean"
+alias gcp="forgit::cherry::pick"
+alias gd="forgit::diff"
+alias gi="forgit::ignore"
+alias glo="forgit::log"
+alias grb="forgit::rebase"
+alias grh="forgit::reset::head"
+alias gss="forgit::stash::show"
+
+# better cat
+alias cat="bat --paging=never --style plain"
+
+# on some terminals
+bindkey "\E[1~" beginning-of-line
+bindkey "\E[4~" end-of-line
+
+# quick fg hotkey
+foreground() {fg; zle redisplay}
+zle -N foreground
+bindkey '^f' foreground
+
+f1() {fg %1; zle redisplay}
+zle -N foreground1
+# bindkey '^1' foreground1
+
+f2() {fg %2; zle redisplay}
+zle -N foreground
+# bindkey '^1' foreground2
+
+f3() {fg %3; zle redisplay}
+zle -N foreground3
+# bindkey '^1' foreground3
+
+f4() {fg %4; zle redisplay}
+zle -N foreground4
+
+bindkey '^ ' autosuggest-accept
