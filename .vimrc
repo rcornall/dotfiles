@@ -15,12 +15,15 @@ set number
 set wildmenu
 
 " 4-spaces
+set list
 set et ts=4 sts=4 sw=4
 
 " kernel tabs
 " set noet ts=8 sw=8
 
 set scrolloff=5 " scroll cursor with context
+set nowrap
+set sidescrolloff=6
 set noea        " dont autoresize splits
 set virtualedit=
 set formatoptions+=j
@@ -96,6 +99,8 @@ au BufLeave * set nocursorline
 
 filetype plugin indent on
 au BufRead,BufNewFile messages set filetype=messages
+au BufRead,BufNewFile *.*profile set filetype=conf
+au BufRead,BufNewFile Jenkinsfile set filetype=groovy
 au BufRead,BufNewFile * if expand('%:t') == '' | set filetype=qf | endif
 
 au Syntax * call matchadd('Todo',  '\W\zs\(TODO\|FIXME\|XXX\|BUG\|HACK\)')
@@ -122,6 +127,11 @@ endfunction
 " normal regexs
 nnoremap / /\v
 vnoremap / /\v
+
+" annoying cmd mode things
+nnoremap q: <NOP>
+vnoremap q: <NOP>
+nnoremap Q <NOP>
 
 " speed up scrolling of the viewport slightly
 nnoremap <C-e> 2<C-e>
@@ -211,6 +221,8 @@ Plug 'google/vim-glaive'
 Plug 'google/vim-codefmt'
 
 Plug 'flazz/vim-colorschemes'
+Plug 'chriskempson/base16-vim'
+Plug 'sts10/vim-pink-moon'
 
 Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' }
 Plug 'junegunn/fzf.vim'
@@ -237,7 +249,8 @@ set completeopt=menu,noselect
 if has('nvim')
   Plug 'neoclide/coc.nvim', {'branch': 'release'}
   source ~/.config/nvim/coc.vim
-  " :CocInstall coc-json coc-python coc-snippets coc-clangd coc-cmake coc-vimlsp coc-explorer coc-fzf coc-sh
+  " cocs to install
+  " :CocInstall coc-json coc-python coc-snippets coc-clangd coc-cmake coc-vimlsp coc-explorer coc-fzf coc-sh coc-rls
   set statusline=%f\ %h%w%m%r%=%{coc#status()}%-14.(%l,%c%V%)\ %P
   set cmdheight=1
 
@@ -253,8 +266,6 @@ else
   Plug 'roxma/vim-hug-neovim-rpc'
   let g:deoplete#enable_at_startup = 1
 end
-
-Plug 'kronos-io/kronos.vim'
 
 Plug 'ap/vim-buftabline'
 
@@ -296,11 +307,11 @@ augroup qs_colors
   autocmd ColorScheme * highlight QuickScopeSecondary guifg='#FF6565' gui=underline ctermfg=81 cterm=underline
 augroup END
 
-Plug 'justinmk/vim-sneak'
-let g:sneak#label = 1
-let g:sneak#prompt = "sneak> "
-
 " Unused:
+" Plug 'justinmk/vim-sneak'
+" let g:sneak#label = 1
+" let g:sneak#prompt = "sneak> "
+"
 " Plug 'easymotion/vim-easymotion'
 " Plug 'ludovicchabant/vim-gutentags'
 " Plug 'lyuts/vim-rtags'
@@ -337,7 +348,7 @@ nnoremap <F1> :call MyGoyo()<CR>
 command! -nargs=? -bar -bang Switch call CurtineIncSw()
 map <F2> :call CurtineIncSw()<CR>
 
-" regen tags
+" regen tags if using special tagging cmd.
 nnoremap <f12> :!retag<cr>
 
 " run vinegar if no file specified
@@ -371,8 +382,8 @@ nnoremap <leader>a :Find
 nnoremap <c-a> :exe "Find " .expand('<cword>')<CR>
 
 "   call tags and tags under word
-nnoremap <leader>t :Tags<CR>
-nnoremap <c-t> :exe "Tags " .expand('<cword>') ""<CR>
+nnoremap <leader>t :CocFzfList symbols<CR>
+nnoremap <c-t> :exe "CocFzfList symbols " .expand('<cword>') ""<CR>
 
 "   find files
 nnoremap <c-p> :Files<CR>
@@ -418,6 +429,16 @@ command! -bang -nargs=* Find
 " }}}
 " ____________________________________________________________________________
 " Functions {{{
+
+function! HideStuff()
+  set noshowmode
+  set noruler
+  set laststatus=0
+  set noshowcmd
+  set cmdheight=1
+  set nonumber
+  set showtabline=0
+endfunction
 
 function! s:GoToDefinition()
   if CocAction('jumpDefinition')
@@ -521,10 +542,10 @@ command! Todo call s:todo()
 " colors {{{
 
 " Seoul256 dark
-let g:seoul256_background = 234
-colo seoul256
+" let g:seoul256_background = 237
+" colo seoul256
  " Missing in upstream vi-colorschemes for seoul256
-hi NormalFloat ctermbg=235 guibg=#333233
+" hi NormalFloat ctermbg=235 guibg=#333233
 
 " For transparent bg:
 " hi Normal guibg=NONE
@@ -556,18 +577,41 @@ hi NormalFloat ctermbg=235 guibg=#333233
 " PaperColor dark
 " colo PaperColor
 " let g:airline_theme='tomorrow'
+" hi Search guibg=#f0e971 guifg=#333312
+
+" Benokai
+" colo Benokai
+
+" PinkMoon
+colo pink-moon
+hi MatchParen guifg=NONE
 
 " Light themes
 " colo tutticolori
 " colo thegoodluck
 
+" TomorrowNightBright
+" colo Tomorrow-Night-Bright
+" similar: colo base16-tomorrow-night
+" hi Search guibg=#f0e971 guifg=#333312
+"
 " Zenburn
 " colo zenburn
-" let g:zenburn_high_Contrast = 1
-" let g:zenburn_alternate_Visual = 1
-" hi! DiffDelete ctermfg=210 guifg=#ee877d
-" hi! DiffAdd ctermfg=108 guifg=#88b888
-" hi! DiffChange ctermfg=228 guifg=#fff176
+  " hi Search guibg=#f0e971 guifg=#333312
+    " let g:zenburn_high_Contrast = 1
+    " let g:zenburn_alternate_Visual = 1
+  " hi! Normal ctermbg=236 guibg=#3a3a3a
+  " hi! Visual ctermbg=23 guibg=#007173
+  " hi! DiffDelete ctermfg=210 guifg=#ee877d
+  " hi! DiffAdd ctermfg=108 guifg=#88b888
+  " hi! DiffChange ctermfg=228 guifg=#fff176
+  " hi! Search cterm=reverse ctermfg=230 ctermbg=22 gui=reverse guifg=#c8ff9c guibg=#284f28
+  " hi! TabLine ctermfg=101 ctermbg=234 guifg=#87875f guibg=#1c1c1c
+  " hi! TabLineSel ctermbg=236 guibg=#3a3a3a
+  " hi! link BufTabLineActive BufTabLineHidden
+  " hi! Statement ctermfg=186 guifg=#d7d787 gui=bold
+  " hi! Function ctermfg=187 guifg=#d7d7af gui=bold
+  " hi! Exception cterm=bold ctermfg=152 gui=bold guifg=#afafd7
 
 " Bold statements look better.
 hi Statement cterm=bold gui=bold
