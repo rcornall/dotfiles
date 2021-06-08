@@ -36,14 +36,16 @@ bindsym control+mod1+l exec --no-startup-id i3lock-fancy & sleep 5 && xset dpms 
 exec --no-startup-id nm-applet
 exec_always --no-startup-id autotiling
 
-bindsym $mod+Escape exec --no-startup-id dm-tool switch-to-greeter
+# bindsym $mod+Escape exec --no-startup-id dm-tool switch-to-greeter
+# not using de or wm anymore just x11 + i3
+bindsym $mod+Escape exec --no-startup-id i3lock-fancy & sleep 5 && xset dpms force off
 
 smart_gaps  on
 smart_borders on
 gaps inner 8
 gaps outer 8
 for_window [class="^.*"] border pixel 2
-set $term --no-startup-id alacritty
+set $term --no-startup-id konsole --hide-menubar
 
 # Use pactl to adjust volume in PulseAudio.
 set $refresh_i3status killall -SIGUSR1 i3status
@@ -56,7 +58,8 @@ bindsym XF86AudioMicMute exec --no-startup-id pactl set-source-mute @DEFAULT_SOU
 floating_modifier $mod
 
 # start a terminal
-bindsym $mod+Return exec i3-sensible-terminal
+bindsym $mod+Return exec konsole --hide-menubar
+bindsym Pause exec --no-startup-id playerctl play-pause
 
 # menu
 bindsym $mod+space 	exec --no-startup-id rofi -show run
@@ -132,6 +135,7 @@ set $ws10 "10"
 
 assign [class="Google Chrome"] $ws1
 assign [class="Slack"] $ws2
+assign [class="Rhythmbox"] $ws5
 
 # switch to workspace
 bindsym $mod+1 workspace number $ws1
@@ -226,3 +230,7 @@ client.focused          #c4587c #c4587c #c4587c #c4587c
 # new workspace
 # bindsym $mod+n exec "i3-msg workspace $(($(i3-msg -t get_workspaces | tr , '\n' | grep num.: | cut -d : -f 2 | sort -rn | head -1) + 1))"
 bindsym $mod+Shift+Return exec  "i3-msg workspace $(($(i3-msg -t get_workspaces | tr , '\n' | grep num.: | cut -d : -f 2 | sort -rn | head -1) + 1))"; exec i3-sensible-terminal
+
+exec google-chrome-stable
+exec slack
+exec rhythmbox

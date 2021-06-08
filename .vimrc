@@ -14,12 +14,11 @@ set ruler
 set number
 set wildmenu
 
-" 4-spaces
-set list
-set et ts=4 sts=4 sw=4
+if has('nvim')
+  set list
+end
 
-" kernel tabs
-" set noet ts=8 sw=8
+set et ts=4 sw=4 sts=4
 
 set scrolloff=5 " scroll cursor with context
 set nowrap
@@ -41,6 +40,9 @@ set hlsearch
 set ignorecase
 set smartcase   " ignore casing if all lower-case
 set incsearch   " show search matches as you type
+if has('nvim')
+  set inccommand=split
+end
 
 set fileformat=unix
 set fileformats=unix,dos,mac
@@ -82,7 +84,7 @@ else
   set guicursor=n-v-c-sm:block,i-ci-ve:ver95-Cursor,r-cr-o:hor20
 end
 
-set pastetoggle=<F2>
+set pastetoggle=<F3>
 
 set wildignore+=*\\artifacts\\*
 set wildignore+=*\\build\\*
@@ -98,7 +100,7 @@ au InsertLeave * set nocursorline
 au BufLeave * set nocursorline
 
 filetype plugin indent on
-au BufRead,BufNewFile messages set filetype=messages
+au BufRead,BufNewFile *messages set filetype=messages
 au BufRead,BufNewFile *.*profile set filetype=conf
 au BufRead,BufNewFile Jenkinsfile set filetype=groovy
 au BufRead,BufNewFile * if expand('%:t') == '' | set filetype=qf | endif
@@ -128,7 +130,7 @@ endfunction
 nnoremap / /\v
 vnoremap / /\v
 
-" annoying cmd mode things
+" annoying things
 nnoremap q: <NOP>
 vnoremap q: <NOP>
 nnoremap Q <NOP>
@@ -150,10 +152,6 @@ nnoremap <C-H> <C-W><C-H>
 " buf navigation
 nnoremap <Left> :bp<CR>
 nnoremap <Right> :bn<CR>
-
-" <gj,gk> to move between displayed lines
-noremap <buffer> <silent> k gk
-noremap <buffer> <silent> j gj
 
 " Movement in insert mode
 inoremap <C-h> <C-o>h
@@ -211,7 +209,7 @@ let g:goyo_linenr=1
 Plug 'rking/ag.vim'
 
 Plug 'terryma/vim-multiple-cursors'
-Plug 'scrooloose/nerdcommenter'
+Plug 'preservim/nerdcommenter'
 
 Plug 'tpope/vim-fugitive'
 Plug 'airblade/vim-gitgutter'
@@ -251,15 +249,14 @@ if has('nvim')
   source ~/.config/nvim/coc.vim
   " cocs to install
   " :CocInstall coc-json coc-python coc-snippets coc-clangd coc-cmake coc-vimlsp coc-explorer coc-fzf coc-sh coc-rls
+  "
+  " set statusline^=%{coc#status()}
   set statusline=%f\ %h%w%m%r%=%{coc#status()}%-14.(%l,%c%V%)\ %P
   set cmdheight=1
 
   Plug 'antoinemadec/coc-fzf'
   let g:coc_fzf_preview = ''
   let g:coc_fzf_opts = []
-
-  Plug 'wellle/context.vim'
-  let g:context_nvim_no_redraw = 1
 else
   Plug 'Shougo/deoplete.nvim'
   Plug 'roxma/nvim-yarp'
@@ -307,11 +304,11 @@ augroup qs_colors
   autocmd ColorScheme * highlight QuickScopeSecondary guifg='#FF6565' gui=underline ctermfg=81 cterm=underline
 augroup END
 
-" Unused:
 " Plug 'justinmk/vim-sneak'
 " let g:sneak#label = 1
 " let g:sneak#prompt = "sneak> "
-"
+
+" Unused:
 " Plug 'easymotion/vim-easymotion'
 " Plug 'ludovicchabant/vim-gutentags'
 " Plug 'lyuts/vim-rtags'
@@ -348,7 +345,7 @@ nnoremap <F1> :call MyGoyo()<CR>
 command! -nargs=? -bar -bang Switch call CurtineIncSw()
 map <F2> :call CurtineIncSw()<CR>
 
-" regen tags if using special tagging cmd.
+" regen tags custom shell cmd.
 nnoremap <f12> :!retag<cr>
 
 " run vinegar if no file specified
@@ -369,6 +366,7 @@ nnoremap <leader>vv :e ~/.vimrc<cr>
 nnoremap <leader>vn :e ~/.config/nvim/init.vim<cr>
 nnoremap <leader>vz :e ~/.zshrc<cr>
 nnoremap <leader>nt :Note todo \| set background=light \| call xolox#colorscheme_switcher#switch_to("PaperColor")<cr>
+
 vnoremap <leader>ns :NoteFromSelectedText  \| set background=light \| call xolox#colorscheme_switcher#switch_to("PaperColor")<cr>
 nnoremap <leader>d :set background=dark \| call xolox#colorscheme_switcher#switch_to("seoul256")<cr>
 nnoremap <leader>l :set background=light \| call xolox#colorscheme_switcher#switch_to("PaperColor")<cr>
@@ -376,6 +374,8 @@ nnoremap <leader>l :set background=light \| call xolox#colorscheme_switcher#swit
 " FZF settings
 let g:fzf_layout = { 'down': '60%' }
 let $FZF_DEFAULT_COMMAND='ag --ignore tags --ignore build -g ""'
+let $FZF_DEFAULT_OPTS='--color "fg:#bbccdd,fg+:#ddeeff,bg:#334455,preview-bg:#223344,border:#778899"'
+let $BAT_THEME='gruvbox-dark'
 
 "   call ag and ag under word
 nnoremap <leader>a :Find 
@@ -384,6 +384,9 @@ nnoremap <c-a> :exe "Find " .expand('<cword>')<CR>
 "   call tags and tags under word
 nnoremap <leader>t :CocFzfList symbols<CR>
 nnoremap <c-t> :exe "CocFzfList symbols " .expand('<cword>') ""<CR>
+
+"   coc-rename (refactor)
+command! Rename execute "normal \<Plug>(coc-rename)"
 
 "   find files
 nnoremap <c-p> :Files<CR>
@@ -430,15 +433,28 @@ command! -bang -nargs=* Find
 " ____________________________________________________________________________
 " Functions {{{
 
-function! HideStuff()
-  set noshowmode
-  set noruler
-  set laststatus=0
-  set noshowcmd
-  set cmdheight=1
-  set nonumber
-  set showtabline=0
+command! HideStuff
+            \ :set noshowmode |
+            \ :set noruler |
+            \ :set laststatus=0 |
+            \ :set noshowcmd |
+            \ :set cmdheight=1 |
+            \ :set nonumber |
+            \ :set showtabline=0 |
+
+let s:tab_state=0
+function! s:toggle_tabs()
+  if s:tab_state
+    set et ts=4 sw=4 sts=4
+    echo("4-spaces")
+  else
+    set noet ts=8 sw=8 sts=4
+    echo("Kernel tabs")
+  endif
+  let s:tab_state = !s:tab_state
 endfunction
+command! Tt call s:toggle_tabs()
+nnoremap <F4> :Tt<CR>
 
 function! s:GoToDefinition()
   if CocAction('jumpDefinition')
@@ -589,6 +605,7 @@ hi MatchParen guifg=NONE
 " Light themes
 " colo tutticolori
 " colo thegoodluck
+" colo solarized8_light_high
 
 " TomorrowNightBright
 " colo Tomorrow-Night-Bright
@@ -623,3 +640,4 @@ hi Comment cterm=italic gui=italic
 " TODO
 " - clang formatter
 " - random color scheme cycler
+" - replace coc with nvim native lsp
