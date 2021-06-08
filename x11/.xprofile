@@ -1,0 +1,15 @@
+./.on-kbd XIDeviceEnabled xx XISlaveKeyboard
+inputplug -d -c ./.on-kbd &
+xbanish &
+xbindkeys &
+autokey-gtk &
+
+export PATH=$PATH:~/.local/bin
+export EDITOR="nvim"
+export TERMINAL="st"
+export BROWSER="google-chrome-stable"
+# QT_QPA_PLATFORMTHEME=qt5ct
+
+feh --bg-fill --randomize ~/Pictures/Wallpapers/* &
+
+xrandr --output VGA-0 --primary --left-of DVI-I-1
