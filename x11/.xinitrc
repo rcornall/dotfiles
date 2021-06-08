@@ -8,7 +8,7 @@ flameshot &
 
 export PATH=$PATH:~/.local/bin
 export EDITOR="nvim"
-export TERMINAL="alacritty"
+export TERMINAL="konsole"
 export BROWSER="google-chrome-stable"
 # QT_QPA_PLATFORMTHEME=qt5ct
 
