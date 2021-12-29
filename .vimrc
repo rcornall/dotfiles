@@ -126,7 +126,12 @@ endfunction
 " ____________________________________________________________________________
 " Mappings {{{
 
-" normal regexs
+" unmap annoying things
+nnoremap q: <NOP>
+vnoremap q: <NOP>
+nnoremap Q <NOP>
+
+" normal regex search
 nnoremap / /\v
 vnoremap / /\v
 
