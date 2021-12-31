@@ -69,7 +69,21 @@ lsp_installer.on_server_ready(function(server)
 
     if server.name == "clangd" then
         opts = vim.tbl_deep_extend("force", {
-            cmd = { "/home/rcornall/.local/share/nvim/lsp_servers/clangd/clangd_13.0.0/bin/clangd" } ,
+            cmd = { "/home/rcornall/.local/share/nvim/lsp_servers/clangd/clangd_13.0.0/bin/clangd",
+                    "--background-index",
+                    "--header-insertion=never"},
+        }, opts)
+    end
+
+    if server.name == "pyright" then
+        opts = vim.tbl_deep_extend("force", {
+            settings = {
+                python = {
+                    analysis = {
+                        autoSearchPaths = true,
+                    }
+                }
+            }
         }, opts)
     end
 
@@ -225,4 +239,16 @@ require('telescope').setup{
         },
     },
 }
-    -- TODO treesitter, quickfix ,qf
+
+-- treesitter
+require'nvim-treesitter.configs'.setup {
+    highlight = {
+        enable = true
+    },
+    incremental_selection = {
+        enable = true
+    },
+    textobjects = {
+        enable = true
+    }
+}

@@ -269,6 +269,8 @@ if has('nvim')
   Plug 'nvim-lua/plenary.nvim'
   Plug 'nvim-telescope/telescope.nvim'
   Plug 'nvim-telescope/telescope-fzf-native.nvim', { 'do': 'make' }
+  Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
+  Plug 'nvim-treesitter/playground'
 
   " treesitter
 
@@ -345,11 +347,6 @@ augroup END
 " let g:sneak#label = 1
 " let g:sneak#prompt = "sneak> "
 
-" Unused:
-" Plug 'easymotion/vim-easymotion'
-" Plug 'ludovicchabant/vim-gutentags'
-" Plug 'lyuts/vim-rtags'
-
 " Plug 'flazz/vim-colorschemes'
 " Plug 'rafi/awesome-vim-colorschemes'
 " Plug 'folke/lsp-colors.nvim'
@@ -364,6 +361,8 @@ if has('nvim')
   Plug 'sainnhe/sonokai'
   Plug 'wadackel/vim-dogrun'
   Plug 'folke/tokyonight.nvim'
+  Plug 'luisiacc/gruvbox-baby'
+  Plug 'rebelot/kanagawa.nvim'
 end
 
 call plug#end()
@@ -376,16 +375,16 @@ autocmd BufEnter,BufWinEnter,TabEnter *.rs :lua require'lsp_extensions'.inlay_hi
 
 nnoremap <c-p> <cmd>Telescope find_files<cr>
 nnoremap <c-a> <cmd>Telescope grep_string<cr>
+nnoremap <c-t> :exe "Telescope lsp_workspace_symbols query=".expand('<cword>')<CR>
+nnoremap <leader>t <cmd>Telescope lsp_dynamic_workspace_symbols<cr>
 nnoremap <leader>a <cmd>Telescope live_grep<cr>
 nnoremap <leader>b <cmd>Telescope buffers<cr>
-nnoremap <leader>r <cmd>Telescope help_tags<cr>
+nnoremap <leader>r <cmd>Telescope lsp_document_symbols<cr>
+nnoremap <leader>t <cmd>Telescope lsp_document_symbols<cr>
 nnoremap gd <cmd>Telescope lsp_definitions<cr>
 nnoremap gD <cmd>Telescope lsp_definitions<cr>
 nnoremap gr <cmd>Telescope lsp_references<cr>
 nnoremap <leader>qf <cmd>Telescope lsp_code_actions<cr>
-
-
-
 
 " let g:tokyonight_style = "night"
 " colo tokyonight
@@ -393,9 +392,11 @@ nnoremap <leader>qf <cmd>Telescope lsp_code_actions<cr>
 " colo sonokai
 " colo material
 " colo gruvbox
+" colo gruvbox-baby
+colo kanagawa
 " colo base16-tomorrow-night-bright
 " colo base16-tomorrow-night
-colo base16-zenburn
+" colo base16-zenburn
 " colo base16-grayscale-dark
 " colo base16-gruvbox-dark-pale
 " let g:seoul256_background = 235
@@ -403,19 +404,22 @@ colo base16-zenburn
 " hi NormalFloat ctermbg=235 guibg=#333233
 " hi Pmenu ctermbg=235 guibg=#333233
 
-" if has('nvim')
-" lua << EOF
-" require'shade'.setup({
-  " overlay_opacity = 73,
-  " opacity_step = 1,
-  " keys = {
-    " brightness_up    = '<C-Up>',
-    " brightness_down  = '<C-Down>',
-    " toggle           = '<Leader>s',
-  " }
-" })
-" EOF
-" end
+if has('nvim')
+lua << EOF
+local ok, mod = pcall(require, 'shade')
+if ok then
+  mod.setup({
+    overlay_opacity = 73,
+    opacity_step = 1,
+    keys = {
+      brightness_up    = '<C-Up>',
+      brightness_down  = '<C-Down>',
+      toggle           = '<Leader>s',
+    }
+  })
+end
+EOF
+end
 "
 " }}}
 " ____________________________________________________________________________
