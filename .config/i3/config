@@ -44,7 +44,7 @@ smart_gaps  on
 smart_borders on
 gaps inner 8
 gaps outer 8
-for_window [class="^.*"] border pixel 2
+for_window [class="^.*"] border pixel 0
 set $term --no-startup-id konsole --hide-menubar
 
 # Use pactl to adjust volume in PulseAudio.
@@ -133,9 +133,9 @@ set $ws8 "8"
 set $ws9 "9"
 set $ws10 "10"
 
-assign [class="Google Chrome"] $ws1
-assign [class="Slack"] $ws2
-assign [class="Rhythmbox"] $ws5
+# assign [class="Google Chrome"] $ws1
+# assign [class="Slack"] $ws2
+# assign [class="Rhythmbox"] $ws5
 
 # switch to workspace
 bindsym $mod+1 workspace number $ws1
@@ -218,6 +218,7 @@ exec --no-startup-id i3-swap-focus
 bindsym $mod+Tab exec pkill -USR1 -F "${XDG_RUNTIME_DIR}/swap_focus.pid"
 
 bindsym $mod+w 		exec --no-startup-id google-chrome-stable
+bindsym $mod+c 		exec --no-startup-id gnome-calendar
 
 
 client.focused          #c4587c #c4587c #c4587c #c4587c
@@ -231,6 +232,7 @@ client.focused          #c4587c #c4587c #c4587c #c4587c
 # bindsym $mod+n exec "i3-msg workspace $(($(i3-msg -t get_workspaces | tr , '\n' | grep num.: | cut -d : -f 2 | sort -rn | head -1) + 1))"
 bindsym $mod+Shift+Return exec  "i3-msg workspace $(($(i3-msg -t get_workspaces | tr , '\n' | grep num.: | cut -d : -f 2 | sort -rn | head -1) + 1))"; exec i3-sensible-terminal
 
-exec google-chrome-stable
-exec slack
-exec rhythmbox
+# exec google-chrome-stable
+# exec slack
+# exec rhythmbox
+exec --no-startup-id redshift-gtk
