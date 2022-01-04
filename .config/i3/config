@@ -9,6 +9,11 @@
 #
 # Please see https://i3wm.org/docs/userguide.html for a complete reference!
 
+# NOTE: sudo apt install i3 i3-wm i3status i3lock-fancy rofi xbindkeys autokey-gtk xbanish inputplug feh light picom
+# /etc/i3status.conf
+# ~/.config/picom.conf
+# .xprofile, .xbindkeyssrc .on-kbd
+
 set $mod Mod4
 
 # Font for window titles. Will also be used by the bar unless a different font
@@ -209,7 +214,7 @@ bar {
         position bottom
         status_command i3status
         workspace_min_width 40
-        font pango:monospace 11
+        font pango:monospace 9
         # bindsym button4 workspace next_on_output
         # bindsym button5 workspace prev_on_output
 }
@@ -218,7 +223,7 @@ exec --no-startup-id i3-swap-focus
 bindsym $mod+Tab exec pkill -USR1 -F "${XDG_RUNTIME_DIR}/swap_focus.pid"
 
 bindsym $mod+w 		exec --no-startup-id google-chrome-stable
-bindsym $mod+c 		exec --no-startup-id gnome-calendar
+bindsym $mod+c 		exec --no-startup-id zenity --calendar
 
 
 client.focused          #c4587c #c4587c #c4587c #c4587c
@@ -235,4 +240,7 @@ bindsym $mod+Shift+Return exec  "i3-msg workspace $(($(i3-msg -t get_workspaces 
 # exec google-chrome-stable
 # exec slack
 # exec rhythmbox
-exec --no-startup-id redshift-gtk
+exec --no-startup-id redshift-gtk -l 49.2:-122.9
+
+bindsym XF86MonBrightnessUp exec light -A 5 # increase screen brightness
+bindsym XF86MonBrightnessDown exec light -U 5 # decrease screen brightness
