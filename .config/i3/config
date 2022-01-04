@@ -10,9 +10,11 @@
 # Please see https://i3wm.org/docs/userguide.html for a complete reference!
 
 # NOTE: sudo apt install i3 i3-wm i3status i3lock-fancy rofi xbindkeys autokey-gtk xbanish inputplug feh light picom
+# ~/.config/i3/config
+# .xprofile, .xbindkeyssrc .on-kbd
 # /etc/i3status.conf
 # ~/.config/picom.conf
-# .xprofile, .xbindkeyssrc .on-kbd
+# alt-tab: python3 setup.py install: https://github.com/olivierlemoal/i3-swap-focus/blob/python-3.6-support/i3-swap-focus
 
 set $mod Mod4
 

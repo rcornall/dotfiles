@@ -1,6 +1,8 @@
 local lspconfig = require'lspconfig'
 local lsp_installer = require'nvim-lsp-installer'
 
+local lsp_status = require('lsp-status')
+lsp_status.register_progress()
 
 local on_attach = function(client, bufnr)
     vim.api.nvim_buf_set_option(bufnr, 'omnifunc', 'v:lua.vim.lsp.omnifunc')
@@ -11,7 +13,7 @@ local on_attach = function(client, bufnr)
     vim.api.nvim_buf_set_keymap(bufnr, 'n', 'K', '<cmd>lua vim.lsp.buf.hover()<CR>', opts)
     vim.api.nvim_buf_set_keymap(bufnr, 'n', 'gi', '<cmd>lua vim.lsp.buf.implementation()<CR>', opts)
     -- vim.api.nvim_buf_set_keymap(bufnr, 'n', 'gr', '<cmd>lua vim.lsp.buf.references()<CR>', opts)
-    vim.api.nvim_buf_set_keymap(bufnr, 'n', '<C-k>', '<cmd>lua vim.lsp.buf.signature_help()<CR>', opts)
+    -- vim.api.nvim_buf_set_keymap(bufnr, 'n', '<C-k>', '<cmd>lua vim.lsp.buf.signature_help()<CR>', opts)
     vim.api.nvim_buf_set_keymap(bufnr, 'n', '<leader>wa', '<cmd>lua vim.lsp.buf.add_workspace_folder()<CR>', opts)
     vim.api.nvim_buf_set_keymap(bufnr, 'n', '<leader>wr', '<cmd>lua vim.lsp.buf.remove_workspace_folder()<CR>', opts)
     vim.api.nvim_buf_set_keymap(bufnr, 'n', '<leader>wl', '<cmd>lua print(vim.inspect(vim.lsp.buf.list_workspace_folders()))<CR>', opts)
@@ -37,6 +39,9 @@ local on_attach = function(client, bufnr)
             false
         )
     end
+
+    require "lsp_signature".on_attach()
+    lsp_status.on_attach(client)
 end
 
 -- nvim-cmp supports additional completion capabilities
@@ -65,6 +70,7 @@ lsp_installer.on_server_ready(function(server)
         opts = vim.tbl_deep_extend("force", {
             cmd = { "/home/rcornall/.local/share/nvim/lsp_servers/rust/rust-analyzer" } ,
         }, opts)
+        opts.capabilities = vim.tbl_extend('keep', opts.capabilities or {}, lsp_status.capabilities)
     end
 
     if server.name == "clangd" then
@@ -72,7 +78,10 @@ lsp_installer.on_server_ready(function(server)
             cmd = { "/home/rcornall/.local/share/nvim/lsp_servers/clangd/clangd_13.0.0/bin/clangd",
                     "--background-index",
                     "--header-insertion=never"},
+            handlers = lsp_status.extensions.clangd.setup(),
+            init_options = { clangdFileStatus = true},
         }, opts)
+        opts.capabilities = vim.tbl_extend('keep', opts.capabilities or {}, lsp_status.capabilities)
     end
 
     if server.name == "pyright" then
@@ -226,6 +235,7 @@ local actions = require("telescope.actions")
 local action_layout = require("telescope.actions.layout")
 require('telescope').setup{
     defaults = {
+        scroll_strategy = "limit",
         mappings = {
             i = {
                 ["<C-j>"] = actions.move_selection_next,

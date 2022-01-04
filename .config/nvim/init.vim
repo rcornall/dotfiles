@@ -255,13 +255,15 @@ if has('nvim')
   Plug 'williamboman/nvim-lsp-installer'
   Plug 'nvim-lua/lsp_extensions.nvim'
   Plug 'kosayoda/nvim-lightbulb'
+  Plug 'ray-x/lsp_signature.nvim'
+  Plug 'nvim-lua/lsp-status.nvim'
 
   Plug 'hrsh7th/nvim-cmp'
   Plug 'hrsh7th/cmp-buffer'
   Plug 'hrsh7th/cmp-path'
   Plug 'hrsh7th/cmp-cmdline'
   Plug 'saadparwaiz1/cmp_luasnip'
-  Plug 'tzachar/cmp-tabnine', { 'do': './install.sh' }
+  " Plug 'tzachar/cmp-tabnine', { 'do': './install.sh' }
   Plug 'hrsh7th/cmp-nvim-lsp'
   Plug 'hrsh7th/cmp-nvim-lua'
 
@@ -347,6 +349,11 @@ augroup END
 " let g:sneak#label = 1
 " let g:sneak#prompt = "sneak> "
 
+" Unused:
+" Plug 'easymotion/vim-easymotion'
+" Plug 'ludovicchabant/vim-gutentags'
+" Plug 'lyuts/vim-rtags'
+
 " Plug 'flazz/vim-colorschemes'
 " Plug 'rafi/awesome-vim-colorschemes'
 " Plug 'folke/lsp-colors.nvim'
@@ -365,19 +372,30 @@ if has('nvim')
   Plug 'rebelot/kanagawa.nvim'
 end
 
+Plug 'ap/vim-css-color'
+
 call plug#end()
 call glaive#Install()
 
-lua require'lsp'
-" autocmd BufEnter,BufWinEnter,TabEnter *.rs :lua require'lsp_extensions'.inlay_hints()
 
+lua require'lsp'
+
+function! StatuslineLsp() abort
+  return luaeval("require('lsp-status').status()")
+endfunction
+set statusline=%<%f\ %h%m%r%=%-14.(%l,%c%V%)\ %P
+set statusline+=%{StatuslineLsp()}
+
+" autocmd BufEnter,BufWinEnter,TabEnter *.rs :lua require'lsp_extensions'.inlay_hints()
 autocmd BufEnter,BufWinEnter,TabEnter *.rs :lua require'lsp_extensions'.inlay_hints{ prefix = '» ', highlight = "NonText", enabled = {"TypeHint", "ChainingHint", "ParameterHint"} }
 
 nnoremap <c-p> <cmd>Telescope find_files<cr>
 nnoremap <c-a> <cmd>Telescope grep_string<cr>
+" nnoremap <c-t> :Telescope lsp_workspace_symbols query=.expand('<cword>')<cr>
 nnoremap <c-t> :exe "Telescope lsp_workspace_symbols query=".expand('<cword>')<CR>
 nnoremap <leader>t <cmd>Telescope lsp_dynamic_workspace_symbols<cr>
-nnoremap <leader>a <cmd>Telescope live_grep<cr>
+command! -nargs=1 Find lua require'telescope.builtin'.grep_string{ shorten_path = true, search =<q-args> }<cr>
+nnoremap <leader>a :Find 
 nnoremap <leader>b <cmd>Telescope buffers<cr>
 nnoremap <leader>r <cmd>Telescope lsp_document_symbols<cr>
 nnoremap <leader>t <cmd>Telescope lsp_document_symbols<cr>
@@ -386,6 +404,9 @@ nnoremap gD <cmd>Telescope lsp_definitions<cr>
 nnoremap gr <cmd>Telescope lsp_references<cr>
 nnoremap <leader>qf <cmd>Telescope lsp_code_actions<cr>
 
+
+
+
 " let g:tokyonight_style = "night"
 " colo tokyonight
 " colo dogrun
@@ -393,7 +414,11 @@ nnoremap <leader>qf <cmd>Telescope lsp_code_actions<cr>
 " colo material
 " colo gruvbox
 " colo gruvbox-baby
+lua require('kanagawa').setup({ keywordStyle = "NONE", colors={bg = "#0e0e12"}})
 colo kanagawa
+hi Statement cterm=bold gui=bold
+" hi Type cterm=bold gui=bold
+hi Comment cterm=italic gui=italic
 " colo base16-tomorrow-night-bright
 " colo base16-tomorrow-night
 " colo base16-zenburn
@@ -462,10 +487,10 @@ nmap <leader>k <plug>(signify-prev-hunk)
 
 " notes
 nnoremap <leader>v :e ~/.vimrc<cr>
-nnoremap <leader>vt :e ~/.tmux.conf<cr>
-nnoremap <leader>vv :e ~/.vimrc<cr>
-nnoremap <leader>vn :e ~/.config/nvim/init.vim<cr>
-nnoremap <leader>vz :e ~/.zshrc<cr>
+" nnoremap <leader>vt :e ~/.tmux.conf<cr>
+" nnoremap <leader>vv :e ~/.vimrc<cr>
+nnoremap <leader>v :e ~/.config/nvim/init.vim<cr>
+" nnoremap <leader>vz :e ~/.zshrc<cr>
 nnoremap <leader>nt :Note todo \| set background=light \| call xolox#colorscheme_switcher#switch_to("PaperColor")<cr>
 vnoremap <leader>ns :NoteFromSelectedText  \| set background=light \| call xolox#colorscheme_switcher#switch_to("PaperColor")<cr>
 nnoremap <leader>d :set background=dark \| call xolox#colorscheme_switcher#switch_to("seoul256")<cr>
@@ -704,9 +729,9 @@ command! Todo call s:todo()
 " hi! DiffChange ctermfg=228 guifg=#fff176
 
 " Bold statements look better.
-hi Statement cterm=bold gui=bold
-hi Type cterm=bold gui=bold
-hi Comment cterm=italic gui=italic
+" hi Statement cterm=bold gui=bold
+" hi Type cterm=bold gui=bold
+" hi Comment cterm=italic gui=italic
 
 " }}}
 " ____________________________________________________________________________
