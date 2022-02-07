@@ -1,0 +1,9 @@
+autokey-gtk
+autotiling
+google-chrome
+i3lock-fancy-git
+inputplug
+slack-desktop
+teams
+xbanish
+yay

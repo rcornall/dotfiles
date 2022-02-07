@@ -1,0 +1,54 @@
+sudo pacman -S --needed - < pacmanlist.txt
+
+
+# install yay: https://github.com/Jguer/yay
+pacman -S --needed git base-devel
+git clone https://aur.archlinux.org/yay.git
+cd yay
+makepkg -si
+
+yay -S --needed - < yaylist.txt
+
+# edit /etc/X11/xinit/xinitrc these at bottom (cmt out others)
+[ -f ~/.xprofile ] && . ~/.xprofile
+exec i3
+
+sh -c 'curl -fLo "${XDG_DATA_HOME:-$HOME/.local/share}"/nvim/site/autoload/plug.vim --create-dirs \\n       https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim'
+
+git clone https://github.com/olivierlemoal/i3-swap-focus
+cd i3-swap-focus
+python3 setup.py install
+
+
+# oh-my-zsh: https://ohmyz.sh/#install
+sh -c "$(curl -fsSL https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
+
+# p10k: https://github.com/romkatv/powerlevel10k
+git clone --depth=1 https://github.com/romkatv/powerlevel10k.git ${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/themes/powerlevel10k
+
+# fzf: https://github.com/junegunn/fzf
+git clone --depth 1 https://github.com/junegunn/fzf.git ~/.fzf
+~/.fzf/install
+
+# zplug: https://github.com/zplug/zplug
+curl -sL --proto-redir -all,https https://raw.githubusercontent.com/zplug/installer/master/installer.zsh | zsh
+
+# zsh auto suggest? https://github.com/zsh-users/zsh-autosuggestions/blob/master/INSTALL.md
+git clone https://github.com/zsh-users/zsh-autosuggestions ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-autosuggestions
+
+# gen sshkey, to another host
+ssh-keygen
+ssh-copy-id rcornall@192.168.5.53
+
+# get music
+# mkdir Music
+rsync -avP --ignore-existing acer:Music .
+
+# for dolphin:
+sudo ln -sn $(which dolphin) /usr/bin/Files
+
+# fonts.. installed w/ pacman. noto-fonts and ubuntu-mono. query with pacman -Ss | grep -i font
+
+# desktop bg
+mkdir -p ~/Pictures/Wallpapers
+cp ./heic0406a.jpg ~/Pictures/Wallpapers
