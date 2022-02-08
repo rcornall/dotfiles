@@ -16,7 +16,7 @@ export ZSH="/home/rcornall/.oh-my-zsh"
 # to know which specific one was loaded, run: echo $RANDOM_THEME
 # See https://github.com/ohmyzsh/ohmyzsh/wiki/Themes
 ZSH_THEME="powerlevel10k/powerlevel10k"
-export TERM=xterm-256color
+# export TERM=xterm-256color # messes with tmux
 SPACESHIP_PROMPT_ORDER=(time user dir host git conda pyenv exec_time vi_mode exit_code char)
 DISABLE_AUTO_TITLE="true"
 SPACESHIP_PROMPT_ADD_NEWLINE="false"
