@@ -8,10 +8,6 @@ set nowritebackup
 " Give more space for displaying messages.
 set cmdheight=2
 
-" Having longer updatetime (default is 4000 ms = 4 s) leads to noticeable
-" delays and poor user experience.
-set updatetime=300
-
 " Don't pass messages to |ins-completion-menu|.
 set shortmess+=c
 
@@ -41,6 +37,7 @@ endfunction
 " Use <c-space> to trigger completion.
 if has('nvim')
   inoremap <silent><expr> <c-space> coc#refresh()
+  inoremap <silent><expr> <c-n> coc#refresh()
 else
   inoremap <silent><expr> <c-@> coc#refresh()
 endif

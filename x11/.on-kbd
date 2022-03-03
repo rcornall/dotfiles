@@ -1,3 +1,5 @@
+#!/bin/sh
+
 echo >&2 "$@"
 event=$1 id=$2 type=$3
 
@@ -11,4 +13,3 @@ case "$event $type" in
 
         xset r rate 310 30
 esac
-
