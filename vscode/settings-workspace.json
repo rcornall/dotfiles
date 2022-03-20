@@ -1,0 +1,40 @@
+{
+    "files.watcherExclude": {
+        "**/.git/**": true,
+        "**/build/**": true
+    },
+    "cmake.preferredGenerators": [
+        "Unix Makefiles"
+    ],
+    "cmake.configureEnvironment": {
+    },
+    "cmake.configureSettings": {
+    },
+    "cmake.debugConfig": {
+        "stopAtEntry": false,
+        "targetArchitecture": "arm64",
+        "preLaunchTask": "install",
+        "MIMode": "gdb",
+        "setupCommands": [
+            {
+                "description": "Enable pretty-printing for gdb",
+                "text": "-enable-pretty-printing",
+                "ignoreFailures": true
+            },
+            {
+                "description": "Load init file",
+                "text": "source ${workspaceFolder}/build/.gdbinit",
+                "ignoreFailures": false
+            },
+            {
+                "description": "Start remote gdbserver",
+                "text": "target remote | ssh root@192.168.1.1 gdbserver - /tmp/${command:cmake.launchTargetFilename}",
+                "ignoreFailures": false
+            }
+        ],
+        "logging": {
+            "engineLogging": true
+        }
+    },
+    "cmake.configureOnOpen": true
+}

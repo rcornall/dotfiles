@@ -1,0 +1,51 @@
+{
+    "vim.leader": ",",
+    "vim.useSystemClipboard": true,
+    "vim.useCtrlKeys": true,
+    "vim.hlsearch": true,
+    "vim.incsearch": true,
+    "vim.visualModeKeyBindings": [
+    ],
+    "vim.normalModeKeyBindingsNonRecursive": [
+        {
+            "before": ["<leader>", "r", "e"],
+            "commands": [
+                "editor.action.rename"
+            ]
+        },
+        {
+            "before": ["<leader>", "r", "f"],
+            "commands": [
+                "fileutils.renameFile"
+            ]
+        },
+        {
+            "before": ["<leader>", "r", "r"],
+            "commands": [
+                "workbench.action.showAllSymbols"
+            ]
+        },
+        {
+            "before": ["Esc", "Esc"],
+            "commands": [
+                ":nohlsearch"
+            ]
+        },
+    ],
+
+    "github.copilot.enable": {
+        "*": true,
+        "yaml": false,
+        "plaintext": false,
+        "markdown": false
+    },
+    "editor.inlineSuggest.enabled": true,
+    "window.zoomLevel": -1,
+
+    "C_Cpp.intelliSenseEngine": "Disabled",
+    "C_Cpp.autocomplete": "Disabled",  // So you don't get autocomplete from both extensions.
+    "C_Cpp.errorSquiggles": "Disabled", // So you don't get error squiggles from both extensions (clangd's seem to be more reliable anyway).
+
+    "clangd.path": "/usr/bin/clangd",
+    "clangd.arguments": ["--log=verbose", "--pretty", "--background-index", "--query-driver=/mnt/toolchain/sysroots/usr/bin/aarch64-poky-linux-g++", "--header-insertion=never"]
+}
