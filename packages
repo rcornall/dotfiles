@@ -1,0 +1,126 @@
+yay -S teams
+yay -S lutris
+yay -S inputplug
+yay -S woeusb
+yay -S autokey
+yay -S autokey-gtk
+yay -S google-drive-ocamlfuse
+yay -S boostnote
+yay -S fonts-tlwg
+yay -S realvnc-vnc-viewer
+yay -S nvidia-390xx-dkms
+
+sudo pacman -S chrpath cpio hostname rpcgen
+sudo pacman -S rpcsvc-proto
+sudo pacman -S net-tools
+sudo pacman -S inetutils
+sudo pacman -S docker
+sudo pacman -S xsel
+sudo pacman -S tldr
+sudo pacman -S man
+sudo pacman -S  xautolock
+sudo pacman -S teams
+sudo pacman -S ms-teams
+sudo pacman -S gsimplecal
+sudo pacman -S pylint
+sudo pacman -S python-lxml
+sudo pacman -S python-pylint
+sudo pacman -S nvidia-390xx
+sudo pacman -S nvidia-390xx-dkms
+sudo pacman -S wine-staging giflib lib32-giflib libpng lib32-libpng libldap lib32-libldap gnutls lib32-gnutls mpg123 lib32-mpg123 openal lib32-openal v4l-utils lib32-v4l-utils libpulse lib32-libpulse libgpg-error lib32-libgpg-error alsa-plugins lib32-alsa-plugins alsa-lib lib32-alsa-lib libjpeg-turbo lib32-libjpeg-turbo sqlite lib32-sqlite libxcomposite lib32-libxcomposite libxinerama lib32-libgcrypt libgcrypt lib32-libxinerama ncurses lib32-ncurses opencl-icd-loader lib32-opencl-icd-loader libxslt lib32-libxslt libva lib32-libva gtk3 lib32-gtk3 gst-plugins-base-libs lib32-gst-plugins-base-libs vulkan-icd-loader lib32-vulkan-icd-loader
+sudo pacman -S zenity
+sudo pacman -S dialog
+sudo pacman -S windbind
+sudo pacman -S libfaudio0
+sudo pacman -S lutris
+sudo pacman -S inputplug
+sudo pacman -S ctags
+sudo pacman -S cmake
+sudo pacman -S xclip
+sudo pacman -S gedit
+sudo pacman -S nodejs
+sudo pacman -S npm
+sudo pacman -S bc
+sudo pacman -S woeusb-git
+sudo pacman -S gparted
+sudo pacman -S lsusb
+sudo pacman -S minicom
+sudo pacman -S openconnect-gui
+sudo pacman -S beep
+sudo pacman -S compton
+sudo pacman -S traceroute
+sudo pacman -S libreoffice
+sudo pacman -S libreoffice-fresh
+sudo pacman -S iperf3
+sudo pacman -S autokey
+sudo pacman -S xlsfonts
+sudo pacman -S adobe-source-han-sans-jp-fonts
+sudo pacman -S adobe-source-han-sans-cn-fonts
+sudo pacman -S drill
+sudo pacman -S ldns
+sudo pacman -S chrony
+sudo pacman -S dpkg libappindicator-gtk2
+sudo pacman -S dpkg
+sudo pacman -S Xvnc
+sudo pacman -S pdfgrep
+sudo pacman -S debtap
+sudo pacman -S pkgfile
+sudo pacman -S wireshark
+sudo pacman -S wireshark-qt
+sudo pacman -S bat
+sudo pacman -S clang
+sudo pacman -S strace
+sudo pacman -S tcpdump
+sudo pacman -S tigervnc
+sudo pacman -S rustup
+sudo pacman -S rust
+sudo pacman -S fonts-tlwg
+sudo pacman -S mkimage
+sudo pacman -S uboot-tools
+sudo pacman -S kparts
+sudo pacman -S multipath-tools
+sudo pacman -S binwalk
+sudo pacman -S nc
+sudo pacman -S netcat
+sudo pacman -S picocom
+sudo pacman -S openssh
+sudo pacman -S st
+sudo pacman -S exa
+sudo pacman -S copyq
+sudo pacman -S openconnect
+sudo pacman -S ffmpeg
+sudo pacman -S libvpx
+sudo pacman -S peekx
+sudo pacman -S peek
+sudo pacman -S sshpass
+sudo pacman -S deluge-gtk
+sudo pacman -S playerctl
+sudo pacman -S xev
+sudo pacman -S xorg-xev
+sudo pacman -S repo
+sudo pacman -S svn
+sudo pacman -S remmina
+sudo pacman -S real-vnc
+sudo pacman -S real-vnc-viewer
+sudo pacman -S realvnc
+sudo pacman -S realvnc-vnc-viewer
+sudo pacman -S gdb
+sudo pacman -S rsync
+sudo pacman -S flow-pomodoro
+sudo pacman -S flow
+sudo pacman -S accountservice
+sudo pacman -S accountsservice
+sudo pacman -S xorg-xinit xorg-utils xorg-server-utils
+sudo pacman -S xorg-xinit xorg-xclock
+sudo pacman -S xterm
+sudo pacman -S lightdm lightdm-gtk-greeter lightdm-gtk-greeter-settings
+sudo pacman -S xorg
+sudo pacman -S xf86-input-libinput
+sudo pacman -S xorg-server
+sudo pacman -S glxgears
+sudo pacman -S kcalc
+sudo pacman -S ttf-emojione
+sudo pacman -S noto-fonts-emoji
+sudo pacman -S kitty
+sudo pacman -S konsole
+sudo pacman -S terminator
