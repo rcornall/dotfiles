@@ -3,10 +3,32 @@
     "vim.useSystemClipboard": true,
     "vim.useCtrlKeys": true,
     "vim.hlsearch": true,
+    "vim.highlightedyank.enable": true,
+    "vim.autoindent": true,
+    "vim.cursorStylePerMode.normal": "block",
     "vim.incsearch": true,
+    "zenMode.hideLineNumbers": false,
+    "workbench.editor.splitOnDragAndDrop": false,
+    "workbench.colorCustomizations": {
+        "editor.background": "#0e0e0e",
+        "editorCursor.foreground": "#e29999",
+        "statusBar.background": "#005f5f",
+        "statusBarItem.remoteBackground": "#2b2615",
+        "statusBar.noFolderBackground": "#005f5f",
+        "statusBar.debuggingBackground": "#005f5f"
+    },
+     "editor.tokenColorCustomizations": {
+        "variables": "#d9dfc7",
+     },
     "vim.visualModeKeyBindings": [
     ],
     "vim.normalModeKeyBindingsNonRecursive": [
+        {
+            "before": ["enter"],
+            "commands": [
+                "editor.action.insertLineAfter"
+            ]
+        },
         {
             "before": ["<leader>", "r", "e"],
             "commands": [
@@ -26,12 +48,115 @@
             ]
         },
         {
+            "before": ["<leader>", "v"],
+            "commands": [
+                "workbench.action.openSettingsJson"
+            ]
+        },
+        {
             "before": ["Esc", "Esc"],
             "commands": [
                 ":nohlsearch"
             ]
         },
+        {
+            "before": ["<leader>", "b"],
+            "commands": [
+                "workbench.action.showEditorsInActiveGroup"
+            ]
+        },
+        {
+            "before": ["<leader>", "e"],
+            "commands": [
+                "workbench.action.toggleSidebarVisibility"
+            ]
+        },
+        {
+            "before": ["<leader>", "f"],
+            "commands": [
+                "workbench.files.action.showActiveFileInExplorer"
+            ]
+        },
+        {
+            "before": ["<C-a>"],
+            "commands": [
+                "workbench.action.findInFiles"
+            ]
+        },
+        {
+            "before": ["<C-t>"],
+            "commands": [
+                "workbench.action.showAllSymbols"
+            ]
+        },
+        {
+            "before": ["<leader>", "r", "n"],
+            "commands": [
+                "editor.action.rename"
+            ]
+        },
+        {
+            "before": ["<leader>", "r", "r"],
+            "commands": [
+                "editor.action.goToReferences"
+            ]
+        },
+        {
+            "before" : ["<leader>", "a"],
+            "commands": [
+                "find-it-faster.findWithinFiles"
+            ]
+        },
+        {
+            "before" : ["<leader>", "k"],
+            "commands": [
+                "workbench.action.editor.previousChange"
+            ]
+        },
+        {
+            "before" : ["<leader>", "j"],
+            "commands": [
+                "workbench.action.editor.nextChange"
+            ]
+        },
+        {
+            "before" : [":", "G", "d"],
+            "commands": [
+                "git.openChangeEditor"
+            ]
+        },
+        {
+            "before" : [":", "G", "b"],
+            "commands": [
+                "gitlens.toggleFileBlame"
+            ]
+        },
     ],
+    "vim.normalModeKeyBindings": [
+        {
+            "before" : ["u"],
+            "commands" : [
+                "undo"
+            ]
+        },
+        {
+            "before" : ["<C-r>"],
+            "commands" : [
+                "redo"
+            ]
+        },
+        {
+            "before": ["<tab>"],
+            "commands": ["workbench.action.nextEditor"]
+        },
+        {
+            "before": ["<S-tab>"],
+            "commands": ["workbench.action.previousEditor"]
+        },
+    ],
+
+    "files.associations": {
+    },
 
     "github.copilot.enable": {
         "*": true,
@@ -40,12 +165,25 @@
         "markdown": false
     },
     "editor.inlineSuggest.enabled": true,
-    "window.zoomLevel": -1,
 
     "C_Cpp.intelliSenseEngine": "Disabled",
     "C_Cpp.autocomplete": "Disabled",  // So you don't get autocomplete from both extensions.
     "C_Cpp.errorSquiggles": "Disabled", // So you don't get error squiggles from both extensions (clangd's seem to be more reliable anyway).
 
     "clangd.path": "/usr/bin/clangd",
-    "clangd.arguments": ["--log=verbose", "--pretty", "--background-index", "--query-driver=/mnt/toolchain/sysroots/usr/bin/aarch64-poky-linux-g++", "--header-insertion=never"]
+    "clangd.arguments": [
+        "--log=verbose",
+        "--pretty",
+        "--background-index",
+        "--query-driver=/mnt/toolchain/sysroots/usr/bin/aarch64-poky-linux-g++",
+        "--header-insertion=never"
+    ],
+    "editor.renderWhitespace": "none",
+    "workbench.colorTheme": "Tomorrow Night Bright",
+    "window.menuBarVisibility": "toggle",
+    "workbench.preferredDarkColorTheme": "Tomorrow Night Bright",
+    "window.zoomLevel": -1,
+    "gitlens.views.commits.files.layout": "list",
+    "workbench.sideBar.location": "right",
+    "workbench.activityBar.visible": false
 }

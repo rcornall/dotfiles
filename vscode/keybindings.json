@@ -1,5 +1,16 @@
 // Place your key bindings in this file to override the defaults
 [
+    // {
+    //     "key": "ctrl+w",
+    //     "command": "workbench.action.terminal.sendSequence",
+    //     "when": "terminalFocus",
+    //     "args": {"text":"\u0017"}
+    // },
+    {
+        "key": "ctrl+w",
+        "command": "",
+        "when": "inQuickOpen"
+    },
     {
         "key": "ctrl+j",
         "command": "selectNextSuggestion",
@@ -7,6 +18,16 @@
     },
     {
         "key": "ctrl+k",
+        "command": "selectPrevSuggestion",
+        "when": "suggestWidgetVisible"
+    },
+    {
+        "key": "ctrl+n",
+        "command": "selectNextSuggestion",
+        "when": "suggestWidgetVisible"
+    },
+    {
+        "key": "ctrl+p",
         "command": "selectPrevSuggestion",
         "when": "suggestWidgetVisible"
     },
@@ -36,13 +57,27 @@
         "when": "editorTextFocus && vim.active && vim.mode != 'Insert'"
     },
     {
-        "key": "cmd+o",
-        "command": "workbench.action.showEditorsInActiveGroup",
-        "when": "editorTextFocus && vim.active && vim.mode != 'Insert'"
-    },
-    {
         "key": "ctrl+j",
         "command": "workbench.action.focusBelowGroup",
         "when": "editorTextFocus && vim.active && vim.mode != 'Insert'"
     },
+    {
+        "key": "shift+k",
+        "command": "editor.action.showHover",
+        "when": "editorTextFocus"
+    },
+    {
+        "key": "f11",
+        "command": "workbench.action.toggleZenMode",
+    }
+    // {
+    //     "key": ", r r",
+    //     "command": "editor.action.goToReferences",
+    //     "when": "editorHasReferenceProvider && editorTextFocus && !inReferenceSearchEditor && !isInEmbeddedEditor"
+    // },
+    // {
+    //     "key": ", r n",
+    //     "command": "editor.action.rename",
+    //     "when": "editorHasRenameProvider && editorTextFocus && !editorReadonly"
+    // },
 ]
