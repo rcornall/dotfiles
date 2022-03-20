@@ -1,14 +1,13 @@
 # code --list-extensions | xargs -L 1 echo code --install-extension
 cschlosser.doxdocgen
+eamodio.gitlens
+EugenWiens.bitbake
 GitHub.vscode-pull-request-github
 jeff-hykin.better-cpp-syntax
 llvm-vs-code-extensions.vscode-clangd
 ms-azuretools.vscode-docker
 ms-python.python
 ms-python.vscode-pylance
-ms-toolsai.jupyter
-ms-toolsai.jupyter-keymap
-ms-toolsai.jupyter-renderers
 ms-vscode-remote.remote-containers
 ms-vscode-remote.remote-ssh
 ms-vscode-remote.remote-ssh-edit
@@ -17,7 +16,12 @@ ms-vscode.cmake-tools
 ms-vscode.cpptools
 ms-vscode.cpptools-extension-pack
 ms-vscode.cpptools-themes
+ms-vscode.Theme-TomorrowKit
+rlivings39.fzf-quick-open
 shardulm94.trailing-spaces
+sirmspencer.vscode-autohide
 sleistner.vscode-fileutils
+TomRijndorp.find-it-faster
 twxs.cmake
+usernamehw.errorlens
 vscodevim.vim
