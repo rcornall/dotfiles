@@ -9,7 +9,7 @@ local on_attach = function(client, bufnr)
 
     local opts = { noremap = true, silent = true }
     -- vim.api.nvim_buf_set_keymap(bufnr, 'n', 'gD', '<cmd>lua vim.lsp.buf.declaration()<CR>', opts)
-    -- vim.api.nvim_buf_set_keymap(bufnr, 'n', 'gd', '<cmd>lua vim.lsp.buf.definition()<CR>', opts)
+    -- vim.api.nvim_buf_set_keymap(bufnr, 'n', 'gd', '<cmd>Telescope lsp_definitions<CR>', opts)
     vim.api.nvim_buf_set_keymap(bufnr, 'n', 'K', '<cmd>lua vim.lsp.buf.hover()<CR>', opts)
     vim.api.nvim_buf_set_keymap(bufnr, 'n', 'gi', '<cmd>lua vim.lsp.buf.implementation()<CR>', opts)
     -- vim.api.nvim_buf_set_keymap(bufnr, 'n', 'gr', '<cmd>lua vim.lsp.buf.references()<CR>', opts)
@@ -18,7 +18,7 @@ local on_attach = function(client, bufnr)
     vim.api.nvim_buf_set_keymap(bufnr, 'n', '<leader>wr', '<cmd>lua vim.lsp.buf.remove_workspace_folder()<CR>', opts)
     vim.api.nvim_buf_set_keymap(bufnr, 'n', '<leader>wl', '<cmd>lua print(vim.inspect(vim.lsp.buf.list_workspace_folders()))<CR>', opts)
     vim.api.nvim_buf_set_keymap(bufnr, 'n', '<leader>D', '<cmd>lua vim.lsp.buf.type_definition()<CR>', opts)
-    vim.api.nvim_buf_set_keymap(bufnr, 'n', '<leader>rn', '<cmd>lua vim.lsp.buf.rename()<CR>', opts)
+    -- vim.api.nvim_buf_set_keymap(bufnr, 'n', '<leader>rn', '<cmd>lua vim.lsp.buf.rename()<CR>', opts)
     vim.api.nvim_buf_set_keymap(bufnr, 'n', '<leader>ca', '<cmd>lua vim.lsp.buf.code_action()<CR>', opts)
     vim.api.nvim_buf_set_keymap(bufnr, 'n', '<leader>e', '<cmd>lua vim.diagnostic.open_float()<CR>', opts)
     vim.api.nvim_buf_set_keymap(bufnr, 'n', '[d', '<cmd>lua vim.diagnostic.goto_prev()<CR>', opts)
@@ -75,8 +75,9 @@ lsp_installer.on_server_ready(function(server)
 
     if server.name == "clangd" then
         opts = vim.tbl_deep_extend("force", {
-            cmd = { "/home/rcornall/.local/share/nvim/lsp_servers/clangd/clangd_13.0.0/bin/clangd",
+            cmd = { "/home/rcornall/.local/share/nvim/lsp_servers/clangd/clangd/bin/clangd",
                     "--background-index",
+                    -- "--query-driver=/mnt/toolchains/sysroots/x86_64/usr/bin/aarch64-poky-linux/aarch64-poky-linux-g++",
                     "--header-insertion=never"},
             handlers = lsp_status.extensions.clangd.setup(),
             init_options = { clangdFileStatus = true},
@@ -89,11 +90,12 @@ lsp_installer.on_server_ready(function(server)
             settings = {
                 python = {
                     analysis = {
-                        autoSearchPaths = true,
+                        autoSearchPaths = false,
                     }
                 }
             }
         }, opts)
+        opts.capabilities = vim.tbl_extend('keep', opts.capabilities or {}, lsp_status.capabilities)
     end
 
     if server.name == "sumneko_lua" then
@@ -151,6 +153,8 @@ luasnip.config.setup({
         }
     },
 })
+require("luasnip.loaders.from_vscode").load()
+-- require("luasnip.loaders.from_vscode").load({ paths = { "/home/rcornall/.my-snippets" } })
 
 -- cmp setup
 local cmp = require("cmp")
@@ -236,6 +240,17 @@ local action_layout = require("telescope.actions.layout")
 require('telescope').setup{
     defaults = {
         scroll_strategy = "limit",
+        find_command = { "rg", "--files", "--no-ignore-parent" },
+        vimgrep_arguments = {
+            "rg",
+            "--no-ignore-parent", -- don't respect .gitignore when in a subdir.
+            "--color=never",
+            "--no-heading",
+            "--with-filename",
+            "--line-number",
+            "--column",
+            "--smart-case"
+        },
         mappings = {
             i = {
                 ["<C-j>"] = actions.move_selection_next,
