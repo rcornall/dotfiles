@@ -251,6 +251,7 @@ set completeopt=menu,noselect
 
 if has('nvim')
   " built-in lsp
+  " LspInstall clangd rust_analyzer vimls sumneko_lua pyright
   Plug 'neovim/nvim-lspconfig'
   Plug 'williamboman/nvim-lsp-installer'
   Plug 'nvim-lua/lsp_extensions.nvim'
@@ -271,6 +272,7 @@ if has('nvim')
   Plug 'nvim-lua/plenary.nvim'
   Plug 'nvim-telescope/telescope.nvim'
   Plug 'nvim-telescope/telescope-fzf-native.nvim', { 'do': 'make' }
+  " TSInstall cpp python rust lua vim json
   Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
   Plug 'nvim-treesitter/playground'
 
@@ -374,6 +376,8 @@ end
 
 Plug 'ap/vim-css-color'
 
+Plug 'iamcco/markdown-preview.nvim', { 'do': 'cd app && yarn install' }
+
 call plug#end()
 call glaive#Install()
 
@@ -389,22 +393,37 @@ set statusline+=%{StatuslineLsp()}
 " autocmd BufEnter,BufWinEnter,TabEnter *.rs :lua require'lsp_extensions'.inlay_hints()
 autocmd BufEnter,BufWinEnter,TabEnter *.rs :lua require'lsp_extensions'.inlay_hints{ prefix = '» ', highlight = "NonText", enabled = {"TypeHint", "ChainingHint", "ParameterHint"} }
 
-nnoremap <c-p> <cmd>Telescope find_files<cr>
-nnoremap <c-a> <cmd>Telescope grep_string<cr>
+nnoremap <c-p> <cmd>lua require'telescope.builtin'.find_files{find_command = { "rg", "--files", "--no-ignore-parent" }}<cr>
+nnoremap <c-a> <cmd>lua require'telescope.builtin'.grep_string{vimgrep_arguments = { "rg", "--no-ignore-parent", "--color=never", "--no-heading", "--with-filename", "--line-number", "--column", "--smart-case" }, }<cr>
+
 " nnoremap <c-t> :Telescope lsp_workspace_symbols query=.expand('<cword>')<cr>
 nnoremap <c-t> :exe "Telescope lsp_workspace_symbols query=".expand('<cword>')<CR>
 nnoremap <leader>t <cmd>Telescope lsp_dynamic_workspace_symbols<cr>
-command! -nargs=1 Find lua require'telescope.builtin'.grep_string{ shorten_path = true, search =<q-args> }<cr>
+command! -nargs=1 Find lua require'telescope.builtin'.grep_string{ vimgrep_arguments = { "rg", "--no-ignore-parent", "--color=never", "--no-heading", "--with-filename", "--line-number", "--column", "--smart-case" }, shorten_path = true, search =<q-args> }<cr>
 nnoremap <leader>a :Find 
 nnoremap <leader>b <cmd>Telescope buffers<cr>
 nnoremap <leader>r <cmd>Telescope lsp_document_symbols<cr>
-nnoremap <leader>t <cmd>Telescope lsp_document_symbols<cr>
-nnoremap gd <cmd>Telescope lsp_definitions<cr>
-nnoremap gD <cmd>Telescope lsp_definitions<cr>
-nnoremap gr <cmd>Telescope lsp_references<cr>
 nnoremap <leader>qf <cmd>Telescope lsp_code_actions<cr>
-
-
+command! Rename lua vim.lsp.buf.rename()<CR>
+" todo fallback to btags. when lsp broken.
+" nnoremap <leader>rr <cmd>Telescope lsp_document_symbols<cr>
+" nnoremap <leader>t <cmd>Telescope lsp_document_symbols<cr>
+function! TelescopeGoToDefinition()
+  let ret = execute("Telescope lsp_definitions")
+  if ret =~ "no client"
+    echo "falling back to gd."
+    normal! gd
+  endif
+endfunction
+function! TelescopeGoToGlobalDefinition()
+  let ret = execute("Telescope lsp_definitions")
+  if ret =~ "no client"
+    echo "falling back to gD."
+    normal! gD
+  endif
+endfunction
+nnoremap gd :call TelescopeGoToDefinition()<CR>
+nnoremap gr <cmd>Telescope lsp_references<cr>
 
 
 " let g:tokyonight_style = "night"
@@ -414,11 +433,13 @@ nnoremap <leader>qf <cmd>Telescope lsp_code_actions<cr>
 " colo material
 " colo gruvbox
 " colo gruvbox-baby
-lua require('kanagawa').setup({ keywordStyle = "NONE", colors={bg = "#0e0e12"}})
+lua require('kanagawa').setup({ keywordStyle = "NONE", colors={bg = "#1f1f1c"}})
 colo kanagawa
 hi Statement cterm=bold gui=bold
 " hi Type cterm=bold gui=bold
 hi Comment cterm=italic gui=italic
+hi PMenuSel cterm=bold guifg=#C8C093 guibg=#363646
+hi TabLineSel ctermfg=242 ctermbg=0 guibg=#2D4F67
 " colo base16-tomorrow-night-bright
 " colo base16-tomorrow-night
 " colo base16-zenburn
@@ -468,7 +489,14 @@ nnoremap <F1> :call MyGoyo()<CR>
 
 " switch to hpp/cpp
 command! -nargs=? -bar -bang Switch call CurtineIncSw()
-map <F2> :call CurtineIncSw()<CR>
+function! Switchheader()
+  let ret = execute("ClangdSwitchSourceHeader")
+  if ret =~ "not supp"
+    echo "falling back to curtine.."
+    execute("call CurtineIncSw()")
+  endif
+endfunction
+map <F2> :call Switchheader()<CR>
 
 " regen tags
 nnoremap <f12> :!retag<cr>
@@ -478,6 +506,11 @@ au vimenter * if @% == "" | execute "normal \<Plug>VinegarUp" | endif
 
 " nerdcommenter bindings and add space after comment delimiters
 let g:NERDSpaceDelims = 1
+"" vim 8 / neovim HEAD runtime: when ft==python, cms:=#\ %s
+"   -- when g:NERDSpaceDelims==1, then NERDComment results in double space
+let g:NERDCustomDelimiters = {
+      \ 'python': { 'left': '#', 'right': '' }
+      \ }
 nnoremap <C-_> :call nerdcommenter#Comment(0,"toggle")<CR>
 vnoremap <C-_> :call nerdcommenter#Comment(0,"toggle")<CR>
 
@@ -486,13 +519,12 @@ nmap <leader>j <plug>(signify-next-hunk)
 nmap <leader>k <plug>(signify-prev-hunk)
 
 " notes
-nnoremap <leader>v :e ~/.vimrc<cr>
+" nnoremap <leader>v :e ~/.vimrc<cr>
 " nnoremap <leader>vt :e ~/.tmux.conf<cr>
-" nnoremap <leader>vv :e ~/.vimrc<cr>
 nnoremap <leader>v :e ~/.config/nvim/init.vim<cr>
 " nnoremap <leader>vz :e ~/.zshrc<cr>
-nnoremap <leader>nt :Note todo \| set background=light \| call xolox#colorscheme_switcher#switch_to("PaperColor")<cr>
-vnoremap <leader>ns :NoteFromSelectedText  \| set background=light \| call xolox#colorscheme_switcher#switch_to("PaperColor")<cr>
+" nnoremap <leader>nt :Note todo \| set background=light \| call xolox#colorscheme_switcher#switch_to("PaperColor")<cr>
+" vnoremap <leader>ns :NoteFromSelectedText  \| set background=light \| call xolox#colorscheme_switcher#switch_to("PaperColor")<cr>
 nnoremap <leader>d :set background=dark \| call xolox#colorscheme_switcher#switch_to("seoul256")<cr>
 nnoremap <leader>l :set background=light \| call xolox#colorscheme_switcher#switch_to("PaperColor")<cr>
 
@@ -557,6 +589,16 @@ nnoremap <leader>g :Google
 " }}}
 " ____________________________________________________________________________
 " Functions {{{
+
+function! s:rename_file()
+    let old_name = expand('%')
+    let new_name = input('New file name: ', expand('%'), 'file')
+    if new_name != '' && new_name != old_name
+        exec ':saveas ' . new_name | exec ':silent !rm ' . old_name | exec ':bd ' . old_file
+        redraw!
+    endif
+endfunction
+command! RenameFile :call s:rename_file()<cr>
 
 command! HideStuff
             \ :set noshowmode |
@@ -677,6 +719,52 @@ function! s:todo() abort
   endif
 endfunction
 command! Todo call s:todo()
+
+function! Spawn_note_window() abort
+  let path = "~/notes/"
+  let file_name = path.strftime("%d-%m-%y.md")
+  " Empty buffer
+  let buf = nvim_create_buf(v:false, v:true)
+  " Get current UI
+  let ui = nvim_list_uis()[0]
+  " Dimension
+  let width = (ui.width/2)
+  let height = (ui.height/2)
+  " Options for new window
+  let opts = {'relative': 'editor',
+              \ 'width': width,
+              \ 'height': height,
+              \ 'col': (ui.width - width)/2,
+              \ 'row': (ui.height - height)/2,
+              \ 'anchor': 'NW',
+              \ 'style': 'minimal',
+              \ 'border': 'single',
+              \ }
+  " Spawn window
+  let win = nvim_open_win(buf, 1, opts)
+  " Now we can actually open or create the note for the day?
+  if filereadable(expand(file_name))
+    execute "e ".fnameescape(file_name)
+    let column = 80
+    execute "set textwidth=".column
+    execute "set colorcolumn=".column
+    " execute "norm Go"
+    " execute "norm G"
+    " execute "norm zz"
+    " execute "startinsert"
+  else
+    execute "e ".fnameescape(file_name)
+    let column = 80
+    execute "set textwidth=".column
+    execute "set colorcolumn=".column
+    execute "norm Gi# ".strftime("%d-%m-%y")
+    execute "norm G2o"
+    execute "norm Gi- " 
+    " execute "norm zz"
+    " execute "startinsert"
+  endif
+endfunction
+nmap <silent> <leader>n :call Spawn_note_window() <CR>
 
 " }}}
 " ____________________________________________________________________________
