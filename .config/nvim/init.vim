@@ -433,13 +433,14 @@ nnoremap gr <cmd>Telescope lsp_references<cr>
 " colo material
 " colo gruvbox
 " colo gruvbox-baby
-lua require('kanagawa').setup({ keywordStyle = "NONE", colors={bg = "#1f1f1c"}})
+lua require('kanagawa').setup({ keywordStyle = {}, colors={bg = "#1f1f1c"}})
 colo kanagawa
 hi Statement cterm=bold gui=bold
 " hi Type cterm=bold gui=bold
 hi Comment cterm=italic gui=italic
 hi PMenuSel cterm=bold guifg=#C8C093 guibg=#363646
 hi TabLineSel ctermfg=242 ctermbg=0 guibg=#2D4F67
+hi VertSplit guibg=#2D4F67
 " colo base16-tomorrow-night-bright
 " colo base16-tomorrow-night
 " colo base16-zenburn
@@ -519,9 +520,12 @@ nmap <leader>j <plug>(signify-next-hunk)
 nmap <leader>k <plug>(signify-prev-hunk)
 
 " notes
-" nnoremap <leader>v :e ~/.vimrc<cr>
 " nnoremap <leader>vt :e ~/.tmux.conf<cr>
-nnoremap <leader>v :e ~/.config/nvim/init.vim<cr>
+if has('nvim')
+  nnoremap <leader>v :e ~/.config/nvim/init.vim<cr>
+else
+  nnoremap <leader>v :e ~/.vimrc<cr>
+end
 " nnoremap <leader>vz :e ~/.zshrc<cr>
 " nnoremap <leader>nt :Note todo \| set background=light \| call xolox#colorscheme_switcher#switch_to("PaperColor")<cr>
 " vnoremap <leader>ns :NoteFromSelectedText  \| set background=light \| call xolox#colorscheme_switcher#switch_to("PaperColor")<cr>
