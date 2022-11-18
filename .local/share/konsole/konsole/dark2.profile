@@ -1,12 +1,13 @@
 [Appearance]
-Font=Ubuntu Mono,10,-1,5,50,0,0,0,0,0
+ColorScheme=DarkPastels
 
 [General]
-Name=Profile 2
+DimWhenInactive=false
+Name=dark2
 Parent=FALLBACK/
 
 [Scrolling]
-HistorySize=20000
+HistorySize=29999
 
 [Terminal Features]
 FlowControlEnabled=false

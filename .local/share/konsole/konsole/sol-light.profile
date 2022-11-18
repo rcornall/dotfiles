@@ -2,7 +2,6 @@
 AntiAliasFonts=true
 BoldIntense=true
 ColorScheme=SolarizedLight
-Font=Ubuntu Mono,10,-1,5,50,0,0,0,0,0
 UseFontLineChararacters=false
 
 [General]
