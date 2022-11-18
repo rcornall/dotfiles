@@ -9,7 +9,7 @@ local on_attach = function(client, bufnr)
 
     local opts = { noremap = true, silent = true }
     -- vim.api.nvim_buf_set_keymap(bufnr, 'n', 'gD', '<cmd>lua vim.lsp.buf.declaration()<CR>', opts)
-    -- vim.api.nvim_buf_set_keymap(bufnr, 'n', 'gd', '<cmd>Telescope lsp_definitions<CR>', opts)
+    -- vim.api.nvim_buf_set_keymap(bufnr, 'n', 'gd', '<cmd>lua vim.lsp.buf.definition()<CR>', opts)
     vim.api.nvim_buf_set_keymap(bufnr, 'n', 'K', '<cmd>lua vim.lsp.buf.hover()<CR>', opts)
     vim.api.nvim_buf_set_keymap(bufnr, 'n', 'gi', '<cmd>lua vim.lsp.buf.implementation()<CR>', opts)
     -- vim.api.nvim_buf_set_keymap(bufnr, 'n', 'gr', '<cmd>lua vim.lsp.buf.references()<CR>', opts)
@@ -27,7 +27,7 @@ local on_attach = function(client, bufnr)
     vim.api.nvim_buf_set_keymap(bufnr, 'n', '<leader>so', [[<cmd>lua require('telescope.builtin').lsp_document_symbols()<CR>]], opts)
     vim.cmd [[ command! Format execute 'lua vim.lsp.buf.formatting()' ]]
     -- Set autocommands conditional on server_capabilities
-    if client.resolved_capabilities.document_highlight then
+    if client.server_capabilities.documentHighlightProvider then
         vim.api.nvim_exec(
             [[
             augroup lsp_document_highlight
@@ -46,7 +46,7 @@ end
 
 -- nvim-cmp supports additional completion capabilities
 local capabilities = vim.lsp.protocol.make_client_capabilities()
-capabilities = require('cmp_nvim_lsp').update_capabilities(capabilities)
+capabilities = require('cmp_nvim_lsp').default_capabilities(capabilities)
 
 -- Enable the following language servers
 -- local servers = { 'clangd', 'rust_analyzer', 'pyright'}
@@ -153,7 +153,10 @@ luasnip.config.setup({
         }
     },
 })
-require("luasnip.loaders.from_vscode").load()
+-- require("luasnip.loaders.from_vscode").load()
+require("luasnip.loaders.from_vscode").load ({
+  paths = "/home/rcornall/.my-snippets",
+})
 -- require("luasnip.loaders.from_vscode").load({ paths = { "/home/rcornall/.my-snippets" } })
 
 -- cmp setup
@@ -260,6 +263,11 @@ require('telescope').setup{
                 ["<C-w>"] = function()
                     vim.api.nvim_input "<c-s-w>"
                 end,
+                ["<esc>"] = actions.close,
+            },
+            n = {
+                -- <esc><esc> is mapped to nohlsearch.. doesn't work, rely on insert mode esc instead.
+                ["<esc>"] = actions.close,
             },
         },
     },

@@ -251,7 +251,6 @@ set completeopt=menu,noselect
 
 if has('nvim')
   " built-in lsp
-  " LspInstall clangd rust_analyzer vimls sumneko_lua pyright
   Plug 'neovim/nvim-lspconfig'
   Plug 'williamboman/nvim-lsp-installer'
   Plug 'nvim-lua/lsp_extensions.nvim'
@@ -272,7 +271,6 @@ if has('nvim')
   Plug 'nvim-lua/plenary.nvim'
   Plug 'nvim-telescope/telescope.nvim'
   Plug 'nvim-telescope/telescope-fzf-native.nvim', { 'do': 'make' }
-  " TSInstall cpp python rust lua vim json
   Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
   Plug 'nvim-treesitter/playground'
 
@@ -304,7 +302,7 @@ else
   let g:deoplete#enable_at_startup = 1
 end
 
-Plug 'kronos-io/kronos.vim'
+" Plug 'kronos-io/kronos.vim'
 
 Plug 'ap/vim-buftabline'
 
@@ -358,15 +356,13 @@ augroup END
 
 " Plug 'flazz/vim-colorschemes'
 " Plug 'rafi/awesome-vim-colorschemes'
-" Plug 'folke/lsp-colors.nvim'
-" Plug 'chriskempson/vim-tomorrow-theme'
+Plug 'chriskempson/vim-tomorrow-theme'
 Plug 'chriskempson/base16-vim'
 Plug 'sts10/vim-pink-moon'
 Plug 'junegunn/seoul256.vim'
 " modern with lsp support:
 if has('nvim')
   " Plug 'sunjon/shade.nvim'
-  Plug 'marko-cerovac/material.nvim'
   Plug 'sainnhe/sonokai'
   Plug 'wadackel/vim-dogrun'
   Plug 'folke/tokyonight.nvim'
@@ -376,11 +372,15 @@ end
 
 Plug 'ap/vim-css-color'
 
-Plug 'iamcco/markdown-preview.nvim', { 'do': 'cd app && yarn install' }
+" auto create lsp colors.
+Plug 'folke/lsp-colors.nvim'
+
+Plug 'mcchrish/zenbones.nvim'
+Plug 'rktjmp/lush.nvim'
+" let g:zenbones_compat = 1
 
 call plug#end()
 call glaive#Install()
-
 
 lua require'lsp'
 
@@ -395,15 +395,14 @@ autocmd BufEnter,BufWinEnter,TabEnter *.rs :lua require'lsp_extensions'.inlay_hi
 
 nnoremap <c-p> <cmd>lua require'telescope.builtin'.find_files{find_command = { "rg", "--files", "--no-ignore-parent" }}<cr>
 nnoremap <c-a> <cmd>lua require'telescope.builtin'.grep_string{vimgrep_arguments = { "rg", "--no-ignore-parent", "--color=never", "--no-heading", "--with-filename", "--line-number", "--column", "--smart-case" }, }<cr>
-
 " nnoremap <c-t> :Telescope lsp_workspace_symbols query=.expand('<cword>')<cr>
 nnoremap <c-t> :exe "Telescope lsp_workspace_symbols query=".expand('<cword>')<CR>
 nnoremap <leader>t <cmd>Telescope lsp_dynamic_workspace_symbols<cr>
-command! -nargs=1 Find lua require'telescope.builtin'.grep_string{ vimgrep_arguments = { "rg", "--no-ignore-parent", "--color=never", "--no-heading", "--with-filename", "--line-number", "--column", "--smart-case" }, shorten_path = true, search =<q-args> }<cr>
+command! -nargs=1 Find lua require'telescope.builtin'.grep_string{ shorten_path = true, search =<q-args> }<cr>
 nnoremap <leader>a :Find 
 nnoremap <leader>b <cmd>Telescope buffers<cr>
 nnoremap <leader>r <cmd>Telescope lsp_document_symbols<cr>
-nnoremap <leader>qf <cmd>Telescope lsp_code_actions<cr>
+nnoremap <leader>qf <cmd>lua vim.lsp.buf.code_action()<cr>
 command! Rename lua vim.lsp.buf.rename()<CR>
 " todo fallback to btags. when lsp broken.
 " nnoremap <leader>rr <cmd>Telescope lsp_document_symbols<cr>
@@ -433,15 +432,8 @@ nnoremap gr <cmd>Telescope lsp_references<cr>
 " colo material
 " colo gruvbox
 " colo gruvbox-baby
-lua require('kanagawa').setup({ keywordStyle = {}, colors={bg = "#1f1f1c"}})
-colo kanagawa
-hi Statement cterm=bold gui=bold
-" hi Type cterm=bold gui=bold
-hi Comment cterm=italic gui=italic
-hi PMenuSel cterm=bold guifg=#C8C093 guibg=#363646
-hi TabLineSel ctermfg=242 ctermbg=0 guibg=#2D4F67
-hi VertSplit guibg=#2D4F67
-" colo base16-tomorrow-night-bright
+
+
 " colo base16-tomorrow-night
 " colo base16-zenburn
 " colo base16-grayscale-dark
@@ -450,6 +442,27 @@ hi VertSplit guibg=#2D4F67
 " colo seoul256
 " hi NormalFloat ctermbg=235 guibg=#333233
 " hi Pmenu ctermbg=235 guibg=#333233
+
+" colo base16-classic-light
+" set background=light
+
+" kana
+" lua require('kanagawa').setup({ keywordStyle = {}, colors={bg = "#1f1f1c"}})
+" colo kanagawa
+" hi Statement cterm=bold gui=bold
+" hi Comment cterm=italic gui=italic
+
+
+" zero scheme needs pmenu set..
+" highlight Pmenu ctermbg=gray guibg=gray
+
+
+" norms: colo torte koehler pablo
+colo rc
+hi Statement cterm=bold gui=bold
+hi Comment cterm=italic gui=italic
+nnoremap <leader>c :e ~/.config/nvim/colors/rc.vim<cr>
+
 
 if has('nvim')
 lua << EOF
