@@ -1,0 +1,23 @@
+# Globals:
+user.name=Rob Cornall
+user.email=rcornall@sierrawireless.com
+credential.helper=store
+filter.lfs.clean=git-lfs clean -- %f
+filter.lfs.smudge=git-lfs smudge -- %f
+filter.lfs.process=git-lfs filter-process
+filter.lfs.required=true
+commit.verbose=true
+
+
+
+# Locals:
+# git config --local core.sshCommand "ssh -i ~/.ssh/id_rsa.robthecornall"
+core.sshcommand=ssh -i ~/.ssh/id_rsa.robthecornall
+
+# git remote set-url origin git@github.com:rcornall/dotfiles
+remote.origin.url=git@github.com:rcornall/dotfiles
+branch.master.remote=origin
+branch.master.merge=refs/heads/master
+
+user.email=robthecornall@gmail.com
+credential.helper=cache

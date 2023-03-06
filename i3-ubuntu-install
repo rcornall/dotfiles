@@ -1,0 +1,9 @@
+apt install i3-gaps (newer i3 version).
+cp .config/i3/config into local
+cp .config/picom.conf into local
+install rofi, i3lock-fancy
+may manually need to compile `picom` (composite thing which fixes screen tearing also)
+install i3-swap-focus python script, or just cp from here to /usr/local/bin/i3-swap-focus
+
+note: gnome-control-center is the settings which persist with networkmanager. (which still is laggy)
+gpclient is vpn gui.
