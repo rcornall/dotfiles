@@ -47,11 +47,11 @@ exec_always --no-startup-id autotiling
 # not using de or wm anymore just x11 + i3
 bindsym $mod+Escape exec --no-startup-id i3lock-fancy & sleep 5 && xset dpms force off
 
-smart_gaps  on
-smart_borders on
-gaps inner 8
-gaps outer 8
-for_window [class="^.*"] border pixel 0
+# smart_gaps  on
+# smart_borders on
+# gaps inner 8
+# gaps outer 8
+for_window [class="^.*"] border pixel 1
 set $term --no-startup-id konsole --hide-menubar
 
 # Use pactl to adjust volume in PulseAudio.
@@ -76,7 +76,7 @@ bindsym $mod+q		kill
 bindsym $mod+Shift+q	[con_id="__focused__" instance="^(?!dropdown_).*$"] exec --no-startup-id kill -9 `xdotool getwindowfocus getwindowpid`
 
 # start dmenu (a program launcher)
-bindsym $mod+d exec --no-startup-id dmenu_run
+# bindsym $mod+d exec --no-startup-id dmenu_run
 # A more modern dmenu replacement is rofi:
 # bindcode $mod+40 exec "rofi -modi drun,run -show drun"
 # There also is i3-dmenu-desktop which only displays applications shipping a
@@ -243,6 +243,8 @@ bindsym $mod+Shift+Return exec  "i3-msg workspace $(($(i3-msg -t get_workspaces 
 # exec slack
 # exec rhythmbox
 exec --no-startup-id redshift-gtk -l 49.2:-122.9
+exec google-chrome-stable
+# exec slack
 
 bindsym XF86MonBrightnessUp exec light -A 5 # increase screen brightness
 bindsym XF86MonBrightnessDown exec light -U 5 # decrease screen brightness

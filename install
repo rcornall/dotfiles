@@ -52,3 +52,10 @@ sudo ln -sn $(which dolphin) /usr/bin/Files
 # desktop bg
 mkdir -p ~/Pictures/Wallpapers
 cp ./heic0406a.jpg ~/Pictures/Wallpapers
+
+# neovim
+
+# tmux
+git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm
+hit prefix I to install.
+
