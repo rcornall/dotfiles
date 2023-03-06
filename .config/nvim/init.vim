@@ -234,7 +234,7 @@ Plug 'ntpeters/vim-better-whitespace'
 
 Plug 'machakann/vim-highlightedyank'
 
-Plug 'mhinz/vim-signify'
+" Plug 'mhinz/vim-signify'
 
 Plug 'tpope/vim-surround'
 
@@ -379,6 +379,11 @@ Plug 'mcchrish/zenbones.nvim'
 Plug 'rktjmp/lush.nvim'
 " let g:zenbones_compat = 1
 
+if has('nvim')
+  Plug 'lambdalisue/suda.vim'
+  command!  W :SudaWrite<cr>
+end
+
 call plug#end()
 call glaive#Install()
 
@@ -395,18 +400,15 @@ autocmd BufEnter,BufWinEnter,TabEnter *.rs :lua require'lsp_extensions'.inlay_hi
 
 nnoremap <c-p> <cmd>lua require'telescope.builtin'.find_files{find_command = { "rg", "--files", "--no-ignore-parent" }}<cr>
 nnoremap <c-a> <cmd>lua require'telescope.builtin'.grep_string{vimgrep_arguments = { "rg", "--no-ignore-parent", "--color=never", "--no-heading", "--with-filename", "--line-number", "--column", "--smart-case" }, }<cr>
-" nnoremap <c-t> :Telescope lsp_workspace_symbols query=.expand('<cword>')<cr>
-nnoremap <c-t> :exe "Telescope lsp_workspace_symbols query=".expand('<cword>')<CR>
+nnoremap <c-t> <cmd>lua require'telescope.builtin'.lsp_workspace_symbols{query=vim.fn.expand "<cword>", fname_width=50, symbol_width=20}<cr>
 nnoremap <leader>t <cmd>Telescope lsp_dynamic_workspace_symbols<cr>
 command! -nargs=1 Find lua require'telescope.builtin'.grep_string{ shorten_path = true, search =<q-args> }<cr>
 nnoremap <leader>a :Find 
 nnoremap <leader>b <cmd>Telescope buffers<cr>
-nnoremap <leader>r <cmd>Telescope lsp_document_symbols<cr>
+nnoremap <leader>r <cmd>lua require'telescope.builtin'.lsp_document_symbols{symbol_width=50}<cr>
 nnoremap <leader>qf <cmd>lua vim.lsp.buf.code_action()<cr>
 command! Rename lua vim.lsp.buf.rename()<CR>
-" todo fallback to btags. when lsp broken.
-" nnoremap <leader>rr <cmd>Telescope lsp_document_symbols<cr>
-" nnoremap <leader>t <cmd>Telescope lsp_document_symbols<cr>
+
 function! TelescopeGoToDefinition()
   let ret = execute("Telescope lsp_definitions")
   if ret =~ "no client"
@@ -422,7 +424,8 @@ function! TelescopeGoToGlobalDefinition()
   endif
 endfunction
 nnoremap gd :call TelescopeGoToDefinition()<CR>
-nnoremap gr <cmd>Telescope lsp_references<cr>
+nnoremap gr <cmd>lua require'telescope.builtin'.lsp_references{fname_width=39}<cr>
+" todo fallback to btags. when lsp broken.
 
 
 " let g:tokyonight_style = "night"
@@ -458,10 +461,12 @@ nnoremap gr <cmd>Telescope lsp_references<cr>
 
 
 " norms: colo torte koehler pablo
-colo rc
-hi Statement cterm=bold gui=bold
-hi Comment cterm=italic gui=italic
-nnoremap <leader>c :e ~/.config/nvim/colors/rc.vim<cr>
+" colo rc
+" hi Statement cterm=bold gui=bold
+" hi Comment cterm=italic gui=italic
+" nnoremap <leader>c :e ~/.config/nvim/colors/rc.vim<cr>
+set background=light
+colo seoulbones
 
 
 if has('nvim')
@@ -528,9 +533,10 @@ let g:NERDCustomDelimiters = {
 nnoremap <C-_> :call nerdcommenter#Comment(0,"toggle")<CR>
 vnoremap <C-_> :call nerdcommenter#Comment(0,"toggle")<CR>
 
+" let g:gitgutter_set_sign_backgrounds = 1
 " move through git hunks
-nmap <leader>j <plug>(signify-next-hunk)
-nmap <leader>k <plug>(signify-prev-hunk)
+nmap <leader>j <plug>(GitGutterNextHunk)
+nmap <leader>k <plug>(GitGutterPrevHunk)
 
 " notes
 " nnoremap <leader>vt :e ~/.tmux.conf<cr>
@@ -606,6 +612,19 @@ nnoremap <leader>g :Google
 " }}}
 " ____________________________________________________________________________
 " Functions {{{
+
+function! s:close_hidden_bufs()
+  let i = 0
+  let n = bufnr('$')
+  while i < n
+    let i = i + 1
+    if bufloaded(i) && bufwinnr(i) < 0
+      exe 'bd ' . i
+    endif
+  endwhile
+endfun
+
+command! CloseBufs :call s:close_hidden_bufs()<cr>
 
 function! s:rename_file()
     let old_name = expand('%')
@@ -807,6 +826,7 @@ nmap <silent> <leader>n :call Spawn_note_window() <CR>
 " Seoul256 light
 " let g:seoul256_light_background = 252
 " colo seoul256
+" colo seoulbones " good light as well.
 " set background=light
 
 " Modified seoul
