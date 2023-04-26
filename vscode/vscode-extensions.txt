@@ -1,11 +1,16 @@
-# code --list-extensions | xargs -L 1 echo code --install-extension
+# code --list-extensions
+# cat vscode-extensions.txt | xargs -L 1 code --install-extension
+bungcip.better-toml
 cschlosser.doxdocgen
+dbaeumer.vscode-eslint
 eamodio.gitlens
+esbenp.prettier-vscode
 EugenWiens.bitbake
 GitHub.vscode-pull-request-github
 jeff-hykin.better-cpp-syntax
 llvm-vs-code-extensions.vscode-clangd
 ms-azuretools.vscode-docker
+ms-pyright.pyright
 ms-python.python
 ms-python.vscode-pylance
 ms-vscode-remote.remote-containers
@@ -16,8 +21,11 @@ ms-vscode.cmake-tools
 ms-vscode.cpptools
 ms-vscode.cpptools-extension-pack
 ms-vscode.cpptools-themes
+ms-vscode.remote-explorer
 ms-vscode.Theme-TomorrowKit
+ms-vscode.vscode-typescript-next
 rlivings39.fzf-quick-open
+rust-lang.rust-analyzer
 shardulm94.trailing-spaces
 sirmspencer.vscode-autohide
 sleistner.vscode-fileutils

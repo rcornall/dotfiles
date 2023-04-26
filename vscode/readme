@@ -1,0 +1,16 @@
+cp settings.json ~/.config/Code/User/
+cp keybindings.json ~/.config/Code/User/
+
+# note: launch.json task not needed. just use cmake. settings per workspace.
+# it will find the right gdb via cmake toolchain file.
+# auto load safe path allows loading of pretty printer py file inside sysroot. ...usr/lib/libstdc++.so.6.0.29-gdb.py
+
+cp settings-workspace.json ~/wd/folder/.vscode/settings.json
+cp tasks.json ~/wd/folder/.vscode/
+
+cp .gdbinit ~/wd/folder/build
+'''
+set auto-load safe-path /
+set sysroot /home/rcornall/wd/... sysroot/device/
+'''
+
