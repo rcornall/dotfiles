@@ -1,3 +1,5 @@
+# Note to edit: git config --local/global -e
+
 # Globals:
 user.name=Rob Cornall
 user.email=rcornall@sierrawireless.com
@@ -7,8 +9,7 @@ filter.lfs.smudge=git-lfs smudge -- %f
 filter.lfs.process=git-lfs filter-process
 filter.lfs.required=true
 commit.verbose=true
-
-
+diff.wsErrorHighlight all
 
 # Locals:
 # git config --local core.sshCommand "ssh -i ~/.ssh/id_rsa.robthecornall"
