@@ -1,0 +1,2 @@
+~/.on-kbd XIDeviceEnabled xx XISlaveKeyboard
+inputplug -d -c ~/.on-kbd &
