@@ -11,3 +11,10 @@ function retag () {
     /usr/bin/ctags -f /home/rcornall/wd/both/cpp_tags2 --append=yes --c++-kinds=+p --fields=+iaS -R /home/rcornall/wd/repo1/apps /home/rcornall/wd/repo1/libs /home/rcornall/wd/repo2/libs
     mv /home/rcornall/wd/both/cpp_tags2 /home/rcornall/wd/both/cpp_tags
 }
+. "$HOME/.cargo/env"
+
+
+if [[ $1 == "taillogs" ]]; then
+    shift
+    /home/rcornall/.taillogs
+fi

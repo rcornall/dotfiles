@@ -52,7 +52,7 @@ bindsym $mod+Escape exec --no-startup-id i3lock-fancy & sleep 5 && xset dpms for
 # gaps inner 8
 # gaps outer 8
 for_window [class="^.*"] border pixel 1
-set $term --no-startup-id konsole --hide-menubar
+set $term --no-startup-id konsole -geometry 800x1000 --hide-menubar
 
 # Use pactl to adjust volume in PulseAudio.
 set $refresh_i3status killall -SIGUSR1 i3status
@@ -248,3 +248,7 @@ exec google-chrome-stable
 
 bindsym XF86MonBrightnessUp exec light -A 5 # increase screen brightness
 bindsym XF86MonBrightnessDown exec light -U 5 # decrease screen brightness
+
+bindsym $mod+t exec --no-startup-id "konsole -geometry 1280x826 -e zsh -i -s taillogs --name floating_term"
+for_window [instance="floating_term"] floating enable
+

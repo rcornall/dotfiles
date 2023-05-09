@@ -1,0 +1,4 @@
+kill $(ps -ef | grep "[s]sh -f u tail" | awk '{print $2}')
+sshpass -p "" ssh -f u "tail -10 -F /var/log/messages" > ~/logs/$(date +%F-%H-%M).messages
+nv -c "set background=light" -c "colo zellner" -c "Neotail" -c "set filetype=messages" ~/logs/$(date +%F-%H-%M).messages +$
+kill $(ps -ef | grep "[s]sh -f u tail" | awk '{print $2}')

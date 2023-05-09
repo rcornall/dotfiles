@@ -105,7 +105,7 @@ au InsertLeave * set nocursorline
 au BufLeave * set nocursorline
 
 filetype plugin indent on
-au BufRead,BufNewFile messages set filetype=messages
+au BufRead,BufNewFile messages,*.messages set filetype=messages
 au BufRead,BufNewFile * if expand('%:t') == '' | set filetype=qf | endif
 
 au Syntax * call matchadd('Todo',  '\W\zs\(TODO\|FIXME\|XXX\|BUG\|HACK\)')
@@ -208,6 +208,10 @@ nnoremap g. :normal! `[v`]<cr><left>
 " Plugins {{{
 
 call plug#begin('~/.vim/plugged')
+
+Plug 'q12321q/neotail'
+command! T execute "Neotail"
+command! Ts execute "NeotailStop"
 
 Plug 'junegunn/goyo.vim'
 let g:goyo_width=130
@@ -381,13 +385,18 @@ Plug 'rktjmp/lush.nvim'
 
 if has('nvim')
   Plug 'lambdalisue/suda.vim'
-  command!  W :SudaWrite<cr>
+  command! W execute "SudaWrite"
 end
 
 call plug#end()
 call glaive#Install()
 
 lua require'lsp'
+lua require("luasnip.loaders.from_vscode").lazy_load({ paths = { "/home/rcornall/.my-snippets" } })
+"
+" }}}
+" ____________________________________________________________________________
+" Plugin mappings {{{
 
 function! StatuslineLsp() abort
   return luaeval("require('lsp-status').status()")
@@ -399,6 +408,7 @@ set statusline+=%{StatuslineLsp()}
 autocmd BufEnter,BufWinEnter,TabEnter *.rs :lua require'lsp_extensions'.inlay_hints{ prefix = '» ', highlight = "NonText", enabled = {"TypeHint", "ChainingHint", "ParameterHint"} }
 
 nnoremap <c-p> <cmd>lua require'telescope.builtin'.find_files{find_command = { "rg", "--files", "--no-ignore-parent" }}<cr>
+nnoremap <c-P> <cmd>lua require'telescope.builtin'.find_files{find_command = { "rg", "--files", "--hidden",  "--no-ignore-parent" }}<cr>
 nnoremap <c-a> <cmd>lua require'telescope.builtin'.grep_string{vimgrep_arguments = { "rg", "--no-ignore-parent", "--color=never", "--no-heading", "--with-filename", "--line-number", "--column", "--smart-case" }, }<cr>
 nnoremap <c-t> <cmd>lua require'telescope.builtin'.lsp_workspace_symbols{query=vim.fn.expand "<cword>", fname_width=50, symbol_width=20}<cr>
 nnoremap <leader>t <cmd>Telescope lsp_dynamic_workspace_symbols<cr>
@@ -425,48 +435,6 @@ function! TelescopeGoToGlobalDefinition()
 endfunction
 nnoremap gd :call TelescopeGoToDefinition()<CR>
 nnoremap gr <cmd>lua require'telescope.builtin'.lsp_references{fname_width=39}<cr>
-" todo fallback to btags. when lsp broken.
-
-
-" let g:tokyonight_style = "night"
-" colo tokyonight
-" colo dogrun
-" colo sonokai
-" colo material
-" colo gruvbox
-" colo gruvbox-baby
-
-
-" colo base16-tomorrow-night
-" colo base16-zenburn
-" colo base16-grayscale-dark
-" colo base16-gruvbox-dark-pale
-" let g:seoul256_background = 235
-" colo seoul256
-" hi NormalFloat ctermbg=235 guibg=#333233
-" hi Pmenu ctermbg=235 guibg=#333233
-
-" colo base16-classic-light
-" set background=light
-
-" kana
-" lua require('kanagawa').setup({ keywordStyle = {}, colors={bg = "#1f1f1c"}})
-" colo kanagawa
-" hi Statement cterm=bold gui=bold
-" hi Comment cterm=italic gui=italic
-
-
-" zero scheme needs pmenu set..
-" highlight Pmenu ctermbg=gray guibg=gray
-
-
-" norms: colo torte koehler pablo
-" colo rc
-" hi Statement cterm=bold gui=bold
-" hi Comment cterm=italic gui=italic
-" nnoremap <leader>c :e ~/.config/nvim/colors/rc.vim<cr>
-set background=light
-colo seoulbones
 
 
 if has('nvim')
@@ -485,10 +453,6 @@ if ok then
 end
 EOF
 end
-"
-" }}}
-" ____________________________________________________________________________
-" Plugin mappings {{{
 
 Glaive codefmt plugin[mappings]
 " Formats current line only
@@ -858,9 +822,45 @@ nmap <silent> <leader>n :call Spawn_note_window() <CR>
 " hi Type cterm=bold gui=bold
 " hi Comment cterm=italic gui=italic
 
+" let g:tokyonight_style = "night"
+" colo tokyonight
+" colo dogrun
+" colo sonokai
+" colo material
+" colo gruvbox
+" colo gruvbox-baby
+
+
+" colo base16-tomorrow-night
+" colo base16-zenburn
+" colo base16-grayscale-dark
+" colo base16-gruvbox-dark-pale
+" let g:seoul256_background = 235
+" colo seoul256
+" hi NormalFloat ctermbg=235 guibg=#333233
+" hi Pmenu ctermbg=235 guibg=#333233
+
+" colo base16-classic-light
+" set background=light
+
+" kana
+" lua require('kanagawa').setup({ keywordStyle = {}, colors={bg = "#1f1f1c"}})
+" colo kanagawa
+" hi Statement cterm=bold gui=bold
+" hi Comment cterm=italic gui=italic
+
+
+" zero scheme needs pmenu set..
+" highlight Pmenu ctermbg=gray guibg=gray
+
+colo rc
+hi Statement cterm=bold gui=bold
+hi Comment cterm=italic gui=italic
+" nnoremap <leader>c :e ~/.config/nvim/colors/rc.vim<cr>
+" set background=light
+" colo zenwritten
+" colo seoulbones
 " }}}
 " ____________________________________________________________________________
 " TODO
 " - clang formatter
-" - random color scheme cycler
-" - replace coc with nvim native lsp
