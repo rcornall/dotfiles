@@ -1,0 +1,5 @@
+# gotten from https://github.com/masaeedu/bitmap-fonts
+mkdir ~/.fonts
+copy folder into ~/.fonts/
+
+fc-cache -fv # rebuild the font cache. reopen konsole.
