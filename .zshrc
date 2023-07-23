@@ -315,7 +315,6 @@ alias grh="forgit::reset::head"
 alias gss="forgit::stash::show"
 
 # better cat
-alias cat="bat --paging=never --style plain"
 
 # on some terminals
 bindkey "\E[1~" beginning-of-line
