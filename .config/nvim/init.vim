@@ -1,13 +1,9 @@
-" some stuff
-" set runtimepath^=~/.vim runtimepath+=~/.vim/after
-" let &packpath = &runtimepath
-" source ~/.vimrc
 let mapleader = ","
-syntax on
 
 " ____________________________________________________________________________
 " Basics {{{
 
+syntax on
 set title
 set shortmess+=I " hide launch screen
 set laststatus=2 " always show status line
@@ -17,6 +13,7 @@ set tags+=tags,cpp_tags;
 set ruler
 set number
 set wildmenu
+set completeopt=menu,noselect
 
 if has('nvim')
   set list
@@ -110,21 +107,6 @@ au BufRead,BufNewFile * if expand('%:t') == '' | set filetype=qf | endif
 
 au Syntax * call matchadd('Todo',  '\W\zs\(TODO\|FIXME\|XXX\|BUG\|HACK\)')
 au Syntax * call matchadd('Debug', '\W\zs\(NOTE\|INFO\|IDEA\)')
-
-" simple statusline
-function! s:statusline_expr()
-  let mod = "%{&modified ? '[+] ' : !&modifiable ? '[x] ' : ''}"
-  let ro  = "%{&readonly ? '[RO] ' : ''}"
-  let ft  = "%{len(&filetype) ? '['.&filetype.'] ' : ''}"
-  let fug = "%{exists('g:loaded_fugitive') ? fugitive#statusline() : ''}"
-  let sep = ' %= '
-  let pos = ' %-12(%l : %c%V%) '
-  let pct = ' %P'
-
-  return '%-F '.ro.ft.fug.mod.sep.pos.'%*'.pct
-endfunction
-" let &statusline = s:statusline_expr()
-
 " }}}
 " ____________________________________________________________________________
 " Mappings {{{
@@ -210,8 +192,6 @@ nnoremap g. :normal! `[v`]<cr><left>
 call plug#begin('~/.vim/plugged')
 
 Plug 'q12321q/neotail'
-command! T execute "Neotail"
-command! Ts execute "NeotailStop"
 
 Plug 'junegunn/goyo.vim'
 let g:goyo_width=130
@@ -233,7 +213,6 @@ Plug 'google/vim-maktaba'
 Plug 'google/vim-glaive'
 Plug 'google/vim-codefmt'
 
-
 Plug 'ntpeters/vim-better-whitespace'
 
 Plug 'machakann/vim-highlightedyank'
@@ -245,19 +224,14 @@ Plug 'tpope/vim-surround'
 Plug 'tpope/vim-vinegar'
 let g:netrw_banner=0
 
-Plug 'szw/vim-g'
-
-" Plug 'majutsushi/tagbar'
-
 Plug 'tpope/vim-obsession'
 
-set completeopt=menu,noselect
-
 if has('nvim')
-  " built-in lsp
+  " use built-in lsp
+  Plug  'williamboman/mason.nvim'
+  Plug 'williamboman/mason-lspconfig.nvim'
   Plug 'neovim/nvim-lspconfig'
-  Plug 'williamboman/nvim-lsp-installer'
-  Plug 'nvim-lua/lsp_extensions.nvim'
+
   Plug 'kosayoda/nvim-lightbulb'
   Plug 'ray-x/lsp_signature.nvim'
   Plug 'nvim-lua/lsp-status.nvim'
@@ -267,7 +241,6 @@ if has('nvim')
   Plug 'hrsh7th/cmp-path'
   Plug 'hrsh7th/cmp-cmdline'
   Plug 'saadparwaiz1/cmp_luasnip'
-  " Plug 'tzachar/cmp-tabnine', { 'do': './install.sh' }
   Plug 'hrsh7th/cmp-nvim-lsp'
   Plug 'hrsh7th/cmp-nvim-lua'
 
@@ -278,27 +251,9 @@ if has('nvim')
   Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
   Plug 'nvim-treesitter/playground'
 
-  " treesitter
-
   " Snippets
   Plug 'L3MON4D3/LuaSnip'
   Plug 'rafamadriz/friendly-snippets'
-end
-
-if has('nvim')
-  " Plug 'neoclide/coc.nvim', {'branch': 'release'}
-  " " source ~/.config/nvim/coc.vim
-  " " :CocInstall coc-json coc-python coc-snippets coc-clangd coc-cmake coc-vimlsp coc-explorer coc-fzf coc-sh coc-rust-analyzer
-  " " set statusline^=%{coc#status()}
-  " set statusline=%f\ %h%w%m%r%=%{coc#status()}%-14.(%l,%c%V%)\ %P
-  " set cmdheight=1
-
-  " Plug 'antoinemadec/coc-fzf'
-  " let g:coc_fzf_preview = ''
-  " let g:coc_fzf_opts = []
-
-  " Plug 'wellle/context.vim'
-  " let g:context_nvim_no_redraw = 1
 else
   Plug 'Shougo/deoplete.nvim'
   Plug 'roxma/nvim-yarp'
@@ -306,15 +261,7 @@ else
   let g:deoplete#enable_at_startup = 1
 end
 
-" Plug 'kronos-io/kronos.vim'
-
 Plug 'ap/vim-buftabline'
-
-" Plug 'octol/vim-cpp-enhanced-highlight'
-" let g:cpp_class_scope_highlight = 1
-" Plug 'jackguo380/vim-lsp-cxx-highlight'
-
-Plug 'morhetz/gruvbox'
 
 Plug 'brooth/far.vim'
 
@@ -322,24 +269,15 @@ Plug 'benmills/vimux'
 
 Plug 'xolox/vim-misc'
 Plug 'xolox/vim-notes'
-Plug 'xolox/vim-colorscheme-switcher'
 
 Plug 'kergoth/vim-bitbake'
-
-Plug 'w0ng/vim-hybrid'
-
-" Plug 'SirVer/ultisnips'
-" Plug 'honza/vim-snippets'
-" let g:UltiSnipsExpandTrigger = "<c-j>"
 
 Plug 'rhysd/git-messenger.vim'
 
 Plug 'tpope/vim-sleuth'
 
-Plug 'leafgarland/typescript-vim'
-
 Plug 'ericcurtin/CurtineIncSw.vim'
-" Plug 'psliwka/vim-smoothie'
+Plug 'karb94/neoscroll.nvim'
 Plug 'unblevable/quick-scope'
 let g:qs_highlight_on_keys = ['f', 'F', 't', 'T']
 let g:qs_max_chars=150
@@ -349,22 +287,23 @@ augroup qs_colors
   autocmd ColorScheme * highlight QuickScopeSecondary guifg='#FF6565' gui=underline ctermfg=81 cterm=underline
 augroup END
 
-" Plug 'justinmk/vim-sneak'
-" let g:sneak#label = 1
-" let g:sneak#prompt = "sneak> "
+if has('nvim')
+  Plug 'lambdalisue/suda.vim'
+  command! W execute "SudaWrite"
+end
 
-" Unused:
-" Plug 'easymotion/vim-easymotion'
-" Plug 'ludovicchabant/vim-gutentags'
-" Plug 'lyuts/vim-rtags'
-
+Plug 'xolox/vim-colorscheme-switcher'
 " Plug 'flazz/vim-colorschemes'
 " Plug 'rafi/awesome-vim-colorschemes'
+Plug 'morhetz/gruvbox'
+Plug 'w0ng/vim-hybrid'
+
 Plug 'chriskempson/vim-tomorrow-theme'
 Plug 'chriskempson/base16-vim'
 Plug 'sts10/vim-pink-moon'
 Plug 'junegunn/seoul256.vim'
-" modern with lsp support:
+
+" colors with lsp support:
 if has('nvim')
   " Plug 'sunjon/shade.nvim'
   Plug 'sainnhe/sonokai'
@@ -376,23 +315,17 @@ end
 
 Plug 'ap/vim-css-color'
 
-" auto create lsp colors.
-Plug 'folke/lsp-colors.nvim'
-
 Plug 'mcchrish/zenbones.nvim'
 Plug 'rktjmp/lush.nvim'
 " let g:zenbones_compat = 1
 
-if has('nvim')
-  Plug 'lambdalisue/suda.vim'
-  command! W execute "SudaWrite"
-end
-
 call plug#end()
 call glaive#Install()
 
-lua require'lsp'
-lua require("luasnip.loaders.from_vscode").lazy_load({ paths = { "/home/rcornall/.my-snippets" } })
+if has('nvim')
+  lua require'lsp'
+  lua require("luasnip.loaders.from_vscode").lazy_load({ paths = { "/home/rcornall/.my-snippets" } })
+end
 "
 " }}}
 " ____________________________________________________________________________
@@ -401,11 +334,10 @@ lua require("luasnip.loaders.from_vscode").lazy_load({ paths = { "/home/rcornall
 function! StatuslineLsp() abort
   return luaeval("require('lsp-status').status()")
 endfunction
-set statusline=%<%f\ %h%m%r%=%-14.(%l,%c%V%)\ %P
-set statusline+=%{StatuslineLsp()}
-
-" autocmd BufEnter,BufWinEnter,TabEnter *.rs :lua require'lsp_extensions'.inlay_hints()
-autocmd BufEnter,BufWinEnter,TabEnter *.rs :lua require'lsp_extensions'.inlay_hints{ prefix = '» ', highlight = "NonText", enabled = {"TypeHint", "ChainingHint", "ParameterHint"} }
+if has('nvim')
+  set statusline=%<%f\ %h%m%r%=%-14.(%l,%c%V%)\ %P
+  set statusline+=%{StatuslineLsp()}
+end
 
 nnoremap <c-p> <cmd>lua require'telescope.builtin'.find_files{find_command = { "rg", "--files", "--no-ignore-parent" }}<cr>
 nnoremap <c-P> <cmd>lua require'telescope.builtin'.find_files{find_command = { "rg", "--files", "--hidden",  "--no-ignore-parent" }}<cr>
@@ -415,10 +347,8 @@ nnoremap <leader>t <cmd>Telescope lsp_dynamic_workspace_symbols<cr>
 command! -nargs=1 Find lua require'telescope.builtin'.grep_string{ shorten_path = true, search =<q-args> }<cr>
 nnoremap <leader>a :Find 
 nnoremap <leader>b <cmd>Telescope buffers<cr>
-nnoremap <leader>r <cmd>lua require'telescope.builtin'.lsp_document_symbols{symbol_width=50}<cr>
 nnoremap <leader>qf <cmd>lua vim.lsp.buf.code_action()<cr>
 command! Rename lua vim.lsp.buf.rename()<CR>
-
 function! TelescopeGoToDefinition()
   let ret = execute("Telescope lsp_definitions")
   if ret =~ "no client"
@@ -497,7 +427,6 @@ let g:NERDCustomDelimiters = {
 nnoremap <C-_> :call nerdcommenter#Comment(0,"toggle")<CR>
 vnoremap <C-_> :call nerdcommenter#Comment(0,"toggle")<CR>
 
-" let g:gitgutter_set_sign_backgrounds = 1
 " move through git hunks
 nmap <leader>j <plug>(GitGutterNextHunk)
 nmap <leader>k <plug>(GitGutterPrevHunk)
@@ -520,59 +449,6 @@ let g:fzf_layout = { 'down': '60%' }
 let $FZF_DEFAULT_COMMAND='ag --ignore tags --ignore build -g ""'
 let $FZF_DEFAULT_OPTS='--color "fg:#bbccdd,fg+:#ddeeff,bg:#334455,preview-bg:#223344,border:#778899"'
 let $BAT_THEME='gruvbox-dark'
-
-"   call ag and ag under word
-" nnoremap <leader>a :Find 
-" nnoremap <c-a> :exe "Find " .expand('<cword>')<CR>
-
-"   call tags and tags under word
-" nnoremap <leader>t :CocFzfList symbols<CR>
-" nnoremap <c-t> :exe "CocFzfList symbols " .expand('<cword>') ""<CR>
-
-"   coc-rename (refactor)
-" command! Rename execute "normal \<Plug>(coc-rename)"
-" command! FormatCoc execute "normal \<Plug>(coc-format-selected)"
-" vmap <leader>f  <Plug>(coc-format-selected)
-" nmap <leader>f  <Plug>(coc-format-selected)
-
-
-"   find files
-" nnoremap <c-p> :Files<CR>
-" nnoremap <c-g> :GFiles<CR>
-
-"   find all mappings
-" nmap <leader><tab> <plug>(fzf-maps-n)
-" xmap <leader><tab> <plug>(fzf-maps-x)
-" omap <leader><tab> <plug>(fzf-maps-o)
-
-"   insert mode completions
-" imap <c-x><c-w> <plug>(fzf-complete-word)
-" imap <c-x><c-d> <plug>(fzf-complete-path)
-" imap <c-x><c-f> <plug>(fzf-complete-file-ag)
-" imap <c-x><c-l> <plug>(fzf-complete-line)
-
-"   google search
-nnoremap <leader>g :Google 
-" nnoremap <c-g> :exe "Google " .expand('<cword>')<CR>
-
-"   :Find  - Start fzf with hidden preview window that can be enabled with "?"
-"   :Find! - Start fzf in fullscreen and display the preview window above
-" call fzf#vim#ag_raw('--color-path "1;31" '.shellescape(<q-args>),
-" command! -bang -nargs=* Find
-            " \ call fzf#vim#ag(<q-args>,
-            " \                 <bang>0 ? fzf#vim#with_preview('up:60%')
-            " \                         : fzf#vim#with_preview('right:50%', '?'),
-            " \                 <bang>0)
-
-" Unused:
-" vimux examples
-" nnoremap <leader>z :call VimuxRunCommand("cd ..")<cr>
-" command! WriteAndBuild :write | call VimuxRunCommand("cd ~/wd/; ..")
-" cnoreabbrev wb WriteAndBuild
-
-" easymotions
-" map <Leader> <Plug>(easymotion-prefix)
-
 " }}}
 " ____________________________________________________________________________
 " Functions {{{
@@ -589,6 +465,7 @@ function! s:close_hidden_bufs()
 endfun
 
 command! CloseBufs :call s:close_hidden_bufs()<cr>
+command! BD :call s:close_hidden_bufs()<cr>
 
 function! s:rename_file()
     let old_name = expand('%')
@@ -609,6 +486,7 @@ command! HideStuff
             \ :set nonumber |
             \ :set showtabline=0 |
 
+" Switch spaces -> kernel tabs
 let s:tab_state=0
 function! s:toggle_tabs()
   if s:tab_state
@@ -623,19 +501,7 @@ endfunction
 command! Tt call s:toggle_tabs()
 nnoremap <F4> :Tt<CR>
 
-" function! s:GoToDefinition()
-  " if CocAction('jumpDefinition')
-    " return v:true
-  " endif
-
-  " let ret = execute("silent! normal \<C-]>")
-  " if ret =~ "Error" || ret =~ "错误"
-    " call searchdecl(expand('<cword>'))
-  " endif
-" endfunction
-
-" nmap <silent> gd :call <SID>GoToDefinition()<CR>
-
+" Buffer tags without LSP.
 function! s:align_lists(lists)
   let maxes = {}
   for list in a:lists
@@ -679,26 +545,15 @@ function! s:btags()
   endtry
 endfunction
 
-" command! BTags call s:btags()
-" nnoremap <leader>r :BTags<CR>
-
-function! s:buflist()
-  redir => ls
-  silent ls
-  redir END
-  return split(ls, '\n')
+" with no lsp, fallback to old custom b(uffer) tags.
+function! Btags()
+  let ret = execute("lua require'telescope.builtin'.lsp_document_symbols{symbol_width=50}")
+  if ret =~ "no client"
+    echo "falling back to btags."
+    execute("call s:btags()")
+  endif
 endfunction
-
-function! s:bufopen(e)
-  execute 'buffer' matchstr(a:e, '^[ 0-9]*')
-endfunction
-
-" nnoremap <leader>b :call fzf#run({
-" \   'source':  reverse(<sid>buflist()),
-" \   'sink':    function('<sid>bufopen'),
-" \   'options': '+m',
-" \   'down':    len(<sid>buflist()) + 2
-" \ })<CR>
+nnoremap <leader>r :call Btags()<cr>
 
 function! s:todo() abort
   let entries = []
@@ -777,29 +632,22 @@ nmap <silent> <leader>n :call Spawn_note_window() <CR>
 " hi NormalFloat ctermbg=235 guibg=#333233
 " hi Pmenu ctermbg=235 guibg=#333233
 
-" For transparent bg:
-" hi Normal guibg=NONE
-
-" Tomorrow theme
-" colo Tomorrow-Night-Bright
-" TomorrowNightBright
-" colo Tomorrow-Night-Bright
-" hi Search guibg=#f0e971 guifg=#333312
-" colo base16-tomorrow-night
-
 " Seoul256 light
 " let g:seoul256_light_background = 252
 " colo seoul256
 " colo seoulbones " good light as well.
 " set background=light
 
-" Modified seoul
-" let g:seoul256_background = 235
-" colo seoul256-dawesome
-" set background=dark
+" For transparent bg:
+" hi Normal guibg=NONE
 
-" Gruvbox Dark
-" colo gruvbox
+" Tomorrow theme
+" colo Tomorrow-Night-Bright
+" hi Search guibg=#f0e971 guifg=#333312
+" colo base16-tomorrow-night
+
+" Gruvbox
+" colo gruvbox-baby
 
 " Hybrid
 " colo hybrid
@@ -808,8 +656,13 @@ nmap <silent> <leader>n :call Spawn_note_window() <CR>
 " colo PaperColor
 
 " Light themes
+" set background=light
 " colo tutticolori
 " colo thegoodluck
+" colo zenwritten
+" colo seoulbones
+" colo base16-classic-light
+" set background=light
 
 " Zenburn
 " colo zenburn
@@ -817,34 +670,23 @@ nmap <silent> <leader>n :call Spawn_note_window() <CR>
 " hi! DiffAdd ctermfg=108 guifg=#88b888
 " hi! DiffChange ctermfg=228 guifg=#fff176
 
-" Bold statements look better.
-" hi Statement cterm=bold gui=bold
-" hi Type cterm=bold gui=bold
-" hi Comment cterm=italic gui=italic
-
 " let g:tokyonight_style = "night"
 " colo tokyonight
 " colo dogrun
 " colo sonokai
 " colo material
-" colo gruvbox
-" colo gruvbox-baby
 
 
 " colo base16-tomorrow-night
 " colo base16-zenburn
 " colo base16-grayscale-dark
-" colo base16-gruvbox-dark-pale
 " let g:seoul256_background = 235
 " colo seoul256
 " hi NormalFloat ctermbg=235 guibg=#333233
 " hi Pmenu ctermbg=235 guibg=#333233
 
-" colo base16-classic-light
-" set background=light
-
 " kana
-" lua require('kanagawa').setup({ keywordStyle = {}, colors={bg = "#1f1f1c"}})
+" lua require('kanagawa').setup({ keywordStyle = {}, colors={palette = {sumiInk3 = "#1f1f1c"}}})
 " colo kanagawa
 " hi Statement cterm=bold gui=bold
 " hi Comment cterm=italic gui=italic
@@ -856,11 +698,8 @@ nmap <silent> <leader>n :call Spawn_note_window() <CR>
 colo rc
 hi Statement cterm=bold gui=bold
 hi Comment cterm=italic gui=italic
+" hi Type cterm=bold gui=bold
+
 " nnoremap <leader>c :e ~/.config/nvim/colors/rc.vim<cr>
-" set background=light
-" colo zenwritten
-" colo seoulbones
 " }}}
 " ____________________________________________________________________________
-" TODO
-" - clang formatter

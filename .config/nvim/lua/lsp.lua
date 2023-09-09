@@ -1,8 +1,10 @@
+require("mason").setup()
+require("mason-lspconfig").setup()
 local lspconfig = require'lspconfig'
-local lsp_installer = require'nvim-lsp-installer'
 
 local lsp_status = require('lsp-status')
 lsp_status.register_progress()
+
 
 local on_attach = function(client, bufnr)
     vim.api.nvim_buf_set_option(bufnr, 'omnifunc', 'v:lua.vim.lsp.omnifunc')
@@ -44,9 +46,60 @@ local on_attach = function(client, bufnr)
     lsp_status.on_attach(client)
 end
 
--- nvim-cmp supports additional completion capabilities
-local capabilities = vim.lsp.protocol.make_client_capabilities()
-capabilities = require('cmp_nvim_lsp').default_capabilities(capabilities)
+local default_capabilities = vim.lsp.protocol.make_client_capabilities()
+default_capabilities = require('cmp_nvim_lsp').default_capabilities(capabilities)
+
+lspconfig.clangd.setup({
+    cmd = { "/home/rcornall/.local/share/nvim/mason/bin/clangd",
+            "--background-index",
+            -- "--limit-references=1000000",
+            -- "--limit-results=1000000",
+            -- "--query-driver=/home/rcornall/wd/unity/build/tmp/sysroots/x86_64/usr/bin/aarch64-poky-linux/aarch64-poky-linux-g++",
+            "--header-insertion=never"},
+    handlers = lsp_status.extensions.clangd.setup(),
+    on_attach = on_attach,
+    init_options = { clangdFileStatus = true},
+    capabilities = vim.tbl_extend('keep', default_capabilities or {}, lsp_status.capabilities)
+})
+lspconfig.pylsp.setup({
+    on_attach = on_attach,
+    capabilities = vim.tbl_extend('keep', default_capabilities or {}, lsp_status.capabilities)
+})
+
+local lua_runtime_path = vim.split(package.path, ';')
+table.insert(lua_runtime_path, 'lua/?.lua')
+table.insert(lua_runtime_path, 'lua/?/init.lua')
+lspconfig.lua_ls.setup({
+    settings = {
+        Lua = {
+            runtime = {
+                -- Tell the language server which version of Lua you're using (most likely LuaJIT in the case of Neovim)
+                version = 'LuaJIT',
+                -- Setup your lua path
+                path = lua_runtime_path,
+            },
+            diagnostics = {
+                -- Get the language server to recognize the `vim` global
+                globals = { 'vim' },
+            },
+            workspace = {
+                -- Make the server aware of Neovim runtime files
+                library = vim.api.nvim_get_runtime_file('', true),
+            },
+            -- Do not send telemetry data containing a randomized but unique identifier
+            telemetry = {
+                enable = false,
+            },
+        },
+    },
+    on_attach = on_attach,
+    capabilities = vim.tbl_extend('keep', default_capabilities or {}, lsp_status.capabilities)
+})
+lspconfig.vimls.setup({
+    on_attach = on_attach,
+    capabilities = vim.tbl_extend('keep', default_capabilities or {}, lsp_status.capabilities)
+})
+
 
 -- Enable the following language servers
 -- local servers = { 'clangd', 'rust_analyzer', 'pyright'}
@@ -56,85 +109,6 @@ capabilities = require('cmp_nvim_lsp').default_capabilities(capabilities)
     -- capabilities = capabilities,
   -- }
 -- end
-
--- Register a handler that will be called for all installed servers.
--- Alternatively, you may also register handlers on specific server instances instead (see example below).
-lsp_installer.on_server_ready(function(server)
-    local opts = {
-        on_attach = on_attach,
-        capabilities = capabilities,
-    }
-
-    -- (optional) Customize the options passed to the server
-    if server.name == "rust_analyzer" then
-        opts = vim.tbl_deep_extend("force", {
-            cmd = { "/home/rcornall/.local/share/nvim/lsp_servers/rust/rust-analyzer" } ,
-        }, opts)
-        opts.capabilities = vim.tbl_extend('keep', opts.capabilities or {}, lsp_status.capabilities)
-    end
-
-    if server.name == "clangd" then
-        opts = vim.tbl_deep_extend("force", {
-            cmd = { "/home/rcornall/.local/share/nvim/lsp_servers/clangd/clangd/bin/clangd",
-                    "--background-index",
-                    -- "--query-driver=/mnt/toolchains/sysroots/x86_64/usr/bin/aarch64-poky-linux/aarch64-poky-linux-g++",
-                    "--header-insertion=never"},
-            handlers = lsp_status.extensions.clangd.setup(),
-            init_options = { clangdFileStatus = true},
-        }, opts)
-        opts.capabilities = vim.tbl_extend('keep', opts.capabilities or {}, lsp_status.capabilities)
-    end
-
-    if server.name == "pyright" then
-        opts = vim.tbl_deep_extend("force", {
-            settings = {
-                python = {
-                    analysis = {
-                        autoSearchPaths = false,
-                    }
-                }
-            }
-        }, opts)
-        opts.capabilities = vim.tbl_extend('keep', opts.capabilities or {}, lsp_status.capabilities)
-    end
-
-    if server.name == "sumneko_lua" then
-        local runtime_path = vim.split(package.path, ';')
-        table.insert(runtime_path, 'lua/?.lua')
-        table.insert(runtime_path, 'lua/?/init.lua')
-
-        opts = vim.tbl_deep_extend("force", {
-            cmd = { "/home/rcornall/.local/share/nvim/lsp_servers/sumneko_lua/extension/server/bin/lua-language-server" } ,
-
-            settings = {
-                Lua = {
-                    runtime = {
-                        -- Tell the language server which version of Lua you're using (most likely LuaJIT in the case of Neovim)
-                        version = 'LuaJIT',
-                        -- Setup your lua path
-                        path = runtime_path,
-                    },
-                    diagnostics = {
-                        -- Get the language server to recognize the `vim` global
-                        globals = { 'vim' },
-                    },
-                    workspace = {
-                        -- Make the server aware of Neovim runtime files
-                        library = vim.api.nvim_get_runtime_file('', true),
-                    },
-                    -- Do not send telemetry data containing a randomized but unique identifier
-                    telemetry = {
-                        enable = false,
-                    },
-                },
-            },
-        }, opts)
-    end
-
-    -- This setup() function is exactly the same as lspconfig's setup function.
-    -- Refer to https://github.com/neovim/nvim-lspconfig/blob/master/doc/server_configurations.md
-    server:setup(opts)
-end)
 
 -- luasnip setup
 local luasnip = require 'luasnip'
@@ -157,7 +131,6 @@ luasnip.config.setup({
 require("luasnip.loaders.from_vscode").load ({
   paths = "/home/rcornall/.my-snippets",
 })
--- require("luasnip.loaders.from_vscode").load({ paths = { "/home/rcornall/.my-snippets" } })
 
 -- cmp setup
 local cmp = require("cmp")
@@ -285,3 +258,24 @@ require'nvim-treesitter.configs'.setup {
         enable = true
     }
 }
+
+-- smooth scroll
+require('neoscroll').setup({
+    -- All these keys will be mapped to their corresponding default scrolling animation
+    easing_function = "quadratic", -- Default easing function
+    mappings = {'<C-b>', '<C-f>',
+                'zt', 'zz', 'zb'},
+    hide_cursor = false,          -- Hide cursor while scrolling
+    stop_eof = false,             -- Stop at <EOF> when scrolling downwards
+    respect_scrolloff = false,   -- Stop scrolling when the cursor reaches the scrolloff margin of the file
+    cursor_scrolls_alone = true, -- The cursor will keep on scrolling even if the window cannot scroll further
+    pre_hook = nil,              -- Function to run before the scrolling animation starts
+    post_hook = nil,             -- Function to run after the scrolling animation ends
+    performance_mode = false,    -- Disable "Performance Mode" on all buffers.
+})
+local t = {}
+-- Syntax: t[keys] = {function, {function arguments}}
+t['zt']    = {'zt', {'330'}}
+t['zz']    = {'zz', {'330'}}
+t['zb']    = {'zb', {'330'}}
+require('neoscroll.config').set_mappings(t)
