@@ -8,7 +8,7 @@ set title
 set shortmess+=I " hide launch screen
 set laststatus=2 " always show status line
 set updatetime=250 "ms
-set tags+=tags,cpp_tags;
+set tags+=./tags,tags,cpp_tags;
 
 set ruler
 set number
@@ -21,15 +21,17 @@ end
 
 set et ts=4 sts=4 sw=4
 
+set nomodeline
+
 set scrolloff=5 " scroll cursor with context
 set nowrap
 set sidescrolloff=6
-set noea        " dont autoresize splits
+" set noea        " don't autoresize splits
 set virtualedit=
 set formatoptions+=j
 set backspace=indent,eol,start  " backspace remove endls
-set autoindent
 set textwidth=100
+set colorcolumn=100
 
 set backupdir=~/.vim/backup// " store backups in isolated directories
 set directory=~/.vim/swap//
@@ -41,6 +43,7 @@ set undoreload=10000
 set hlsearch
 set ignorecase
 set smartcase   " ignore casing if all lower-case
+set autoindent " newer.
 set incsearch   " show search matches as you type
 if has('nvim')
   set inccommand=split
@@ -50,7 +53,7 @@ set fileformat=unix
 set fileformats=unix,dos,mac
 set formatoptions+=1        " when wrapping paragraphs,
                             " don't end with 1-letter words
-set clipboard=unnamedplus
+" set clipboard+=unnamedplus " slow startup time, use autocmd for wsl.
 set foldmethod=syntax
 set foldlevelstart=99
 
@@ -86,7 +89,9 @@ else
   set guicursor=n-v-c-sm:block,i-ci-ve:ver95-Cursor,r-cr-o:hor20
 end
 
-set pastetoggle=<F2>
+if !has('nvim')
+  set pastetoggle=<F2>
+end
 
 set wildignore+=*\\artifacts\\*
 set wildignore+=*\\build\\*
@@ -104,6 +109,8 @@ au BufLeave * set nocursorline
 filetype plugin indent on
 au BufRead,BufNewFile messages,*.messages set filetype=messages
 au BufRead,BufNewFile * if expand('%:t') == '' | set filetype=qf | endif
+au BufRead,BufNewFile *.overlay set filetype=dts
+au BufRead,BufNewFile SConscript,SConstruct set filetype=python
 
 au Syntax * call matchadd('Todo',  '\W\zs\(TODO\|FIXME\|XXX\|BUG\|HACK\)')
 au Syntax * call matchadd('Debug', '\W\zs\(NOTE\|INFO\|IDEA\)')
@@ -124,9 +131,10 @@ nnoremap Q <NOP>
 nnoremap <C-e> 2<C-e>
 nnoremap <C-y> 2<C-y>
 
-" enter=newline
+" enter=newline, but not in quickfix.
 nmap <S-Enter> O<Esc>
-nmap <CR> o<Esc>
+" nmap <CR> o<Esc>
+nnoremap <expr> <CR> &buftype ==# 'quickfix' ? "\<CR>" : 'o<Esc>'
 
 " split navigation
 nnoremap <C-J> <C-W><C-J>
@@ -185,6 +193,24 @@ nnoremap Y y$
 " Last inserted text
 nnoremap g. :normal! `[v`]<cr><left>
 
+" default make
+set makeprg=make\ -C\ build\ -j8\ " VERBOSE=1
+
+
+" WSL clippy:
+" let g:clipboard = {
+            " \   'name': 'WslClipboard',
+            " \   'copy': {
+            " \      '+': 'clip.exe',
+            " \      '*': 'clip.exe',
+            " \    },
+            " \   'paste': {
+            " \      '+': 'powershell.exe -c [Console]::Out.Write($(Get-Clipboard -Raw).tostring().replace("`r", ""))',
+            " \      '*': 'powershell.exe -c [Console]::Out.Write($(Get-Clipboard -Raw).tostring().replace("`r", ""))',
+            " \   },
+            " \   'cache_enabled': 0,
+            " \ }
+
 " }}}
 " ____________________________________________________________________________
 " Plugins {{{
@@ -201,8 +227,6 @@ let g:goyo_linenr=1
 Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' }
 Plug 'junegunn/fzf.vim'
 
-Plug 'rking/ag.vim'
-
 Plug 'terryma/vim-multiple-cursors'
 Plug 'preservim/nerdcommenter'
 
@@ -215,9 +239,11 @@ Plug 'google/vim-codefmt'
 
 Plug 'ntpeters/vim-better-whitespace'
 
+if has('nvim')
+autocmd TextYankPost * silent! lua vim.hl.on_yank {higroup='IncSearch', timeout=310}
+else
 Plug 'machakann/vim-highlightedyank'
-
-" Plug 'mhinz/vim-signify'
+end
 
 Plug 'tpope/vim-surround'
 
@@ -228,7 +254,7 @@ Plug 'tpope/vim-obsession'
 
 if has('nvim')
   " use built-in lsp
-  Plug  'williamboman/mason.nvim'
+  Plug 'williamboman/mason.nvim'
   Plug 'williamboman/mason-lspconfig.nvim'
   Plug 'neovim/nvim-lspconfig'
 
@@ -277,7 +303,7 @@ Plug 'rhysd/git-messenger.vim'
 Plug 'tpope/vim-sleuth'
 
 Plug 'ericcurtin/CurtineIncSw.vim'
-Plug 'karb94/neoscroll.nvim'
+" Plug 'karb94/neoscroll.nvim'
 Plug 'unblevable/quick-scope'
 let g:qs_highlight_on_keys = ['f', 'F', 't', 'T']
 let g:qs_max_chars=150
@@ -293,8 +319,8 @@ if has('nvim')
 end
 
 Plug 'xolox/vim-colorscheme-switcher'
-" Plug 'flazz/vim-colorschemes'
-" Plug 'rafi/awesome-vim-colorschemes'
+Plug 'flazz/vim-colorschemes'
+Plug 'rafi/awesome-vim-colorschemes'
 Plug 'morhetz/gruvbox'
 Plug 'w0ng/vim-hybrid'
 
@@ -323,7 +349,7 @@ call plug#end()
 call glaive#Install()
 
 if has('nvim')
-  lua require'lsp'
+  lua require'init'
   lua require("luasnip.loaders.from_vscode").lazy_load({ paths = { "/home/rcornall/.my-snippets" } })
 end
 "
@@ -332,10 +358,14 @@ end
 " Plugin mappings {{{
 
 function! StatuslineLsp() abort
-  return luaeval("require('lsp-status').status()")
+  if luaeval('#vim.lsp.get_clients({bufnr=vim.api.nvim_get_current_buf()}) > 0')
+    return luaeval("require('lsp-status').status()")
+  endif
 endfunction
+
 if has('nvim')
-  set statusline=%<%f\ %h%m%r%=%-14.(%l,%c%V%)\ %P
+  set statusline=%<%{expand('%:~')}\ %h%m%r%=%-14.(%l,%c%V%)\ %P
+  " set statusline=%<%f\ %h%m%r%=%-14.(%l,%c%V%)\ %P
   set statusline+=%{StatuslineLsp()}
 end
 
@@ -349,6 +379,7 @@ nnoremap <leader>a :Find
 nnoremap <leader>b <cmd>Telescope buffers<cr>
 nnoremap <leader>qf <cmd>lua vim.lsp.buf.code_action()<cr>
 command! Rename lua vim.lsp.buf.rename()<CR>
+
 function! TelescopeGoToDefinition()
   let ret = execute("Telescope lsp_definitions")
   if ret =~ "no client"
@@ -364,7 +395,7 @@ function! TelescopeGoToGlobalDefinition()
   endif
 endfunction
 nnoremap gd :call TelescopeGoToDefinition()<CR>
-nnoremap gr <cmd>lua require'telescope.builtin'.lsp_references{fname_width=39}<cr>
+nnoremap gr <cmd>lua require'telescope.builtin'.lsp_references{fname_width=89}<cr>
 
 
 if has('nvim')
@@ -435,6 +466,8 @@ nmap <leader>k <plug>(GitGutterPrevHunk)
 " nnoremap <leader>vt :e ~/.tmux.conf<cr>
 if has('nvim')
   nnoremap <leader>v :e ~/.config/nvim/init.vim<cr>
+  nnoremap <leader>vv :e ~/.config/nvim/init.vim<cr>
+  nnoremap <leader>vn :e ~/.config/nvim/lua/init.lua<cr>
 else
   nnoremap <leader>v :e ~/.vimrc<cr>
 end
@@ -546,6 +579,7 @@ function! s:btags()
 endfunction
 
 " with no lsp, fallback to old custom b(uffer) tags.
+" TODO this can be done in on_attach...
 function! Btags()
   let ret = execute("lua require'telescope.builtin'.lsp_document_symbols{symbol_width=50}")
   if ret =~ "no client"
@@ -578,6 +612,20 @@ command! Todo call s:todo()
 function! Spawn_note_window() abort
   let path = "~/notes/"
   let file_name = path.strftime("%d-%m-%y.md")
+  " Check if the file is already open in a floating window
+  for win in nvim_list_wins()
+    let win_config = nvim_win_get_config(win)
+    if has_key(win_config, 'relative') && win_config.relative == 'editor'
+      let buf = nvim_win_get_buf(win)
+      let buf_name = bufname(buf)
+      if buf_name == file_name
+        " Focus on the existing floating window
+        call nvim_set_current_win(win)
+        return
+      endif
+    endif
+  endfor
+
   " Empty buffer
   let buf = nvim_create_buf(v:false, v:true)
   " Get current UI
@@ -604,8 +652,8 @@ function! Spawn_note_window() abort
     execute "set textwidth=".column
     execute "set colorcolumn=".column
     " execute "norm Go"
-    " execute "norm G"
-    " execute "norm zz"
+    execute "norm G"
+    execute "norm zz"
     " execute "startinsert"
   else
     execute "e ".fnameescape(file_name)
@@ -642,8 +690,9 @@ nmap <silent> <leader>n :call Spawn_note_window() <CR>
 " hi Normal guibg=NONE
 
 " Tomorrow theme
-" colo Tomorrow-Night-Bright
-" hi Search guibg=#f0e971 guifg=#333312
+colo Tomorrow-Night-Bright
+hi Search guibg=#f0e971 guifg=#333312
+highlight link @keyword Define
 " colo base16-tomorrow-night
 
 " Gruvbox
@@ -703,3 +752,18 @@ hi Comment cterm=italic gui=italic
 " nnoremap <leader>c :e ~/.config/nvim/colors/rc.vim<cr>
 " }}}
 " ____________________________________________________________________________
+
+command! ConvertDosToUnix
+            \ :e ++ff=dos |
+            \ :set ff=unix |
+
+au Syntax * call matchadd('Todo',  '\(TODO\|FIXME\|XXX\|BUG\|HACK\)')
+au Syntax * call matchadd('Debug', '\(NOTE\|INFO\|IDEA\)')
+
+hi Todo term=standout ctermfg=0 ctermbg=6 guifg=#000000 guibg=#c0c000
+hi! link Title Define
+
+hi def link Done Comment
+autocmd BufWinEnter *.md call matchadd('Done', '^.*DONE')
+autocmd BufWinEnter *.md call matchadd('Todo', '^.*TODO')
+

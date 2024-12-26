@@ -1,8 +1,28 @@
 require("mason").setup()
-require("mason-lspconfig").setup()
+require("mason-lspconfig").setup({
+    ensure_installed = {
+        "clangd",
+        "rust_analyzer",
+        "lua_ls",
+        "vimls",
+    },
+})
 local lspconfig = require'lspconfig'
 
 local lsp_status = require('lsp-status')
+lsp_status.config({
+  -- disable diagnostics
+  -- diagnostics = false,
+  -- Optionally disable messages
+  -- messages = false,
+  -- disable current function
+  current_function = false,
+  show_filename = false,
+  indicator_errors = 'X',
+  indicator_warnings = 'W',
+  status_symbol = '',
+  update_interval = 80
+})
 lsp_status.register_progress()
 
 
@@ -27,19 +47,27 @@ local on_attach = function(client, bufnr)
     vim.api.nvim_buf_set_keymap(bufnr, 'n', ']d', '<cmd>lua vim.diagnostic.goto_next()<CR>', opts)
     vim.api.nvim_buf_set_keymap(bufnr, 'n', '<leader>q', '<cmd>lua vim.diagnostic.setloclist()<CR>', opts)
     vim.api.nvim_buf_set_keymap(bufnr, 'n', '<leader>so', [[<cmd>lua require('telescope.builtin').lsp_document_symbols()<CR>]], opts)
+    vim.api.nvim_buf_set_keymap(bufnr, 'n', '<leader>r', [[<cmd>lua require'telescope.builtin'.lsp_document_symbols{symbol_width=50}<CR>]], opts)
+    vim.api.nvim_buf_set_keymap(bufnr, 'n', '<leader>so', [[<cmd>lua require('telescope.builtin').lsp_document_symbols()<CR>]], opts)
+
+    vim.keymap.set("v", "gq", vim.lsp.buf.format, { remap = false })
     vim.cmd [[ command! Format execute 'lua vim.lsp.buf.formatting()' ]]
     -- Set autocommands conditional on server_capabilities
+    local encoding = client.offset_encoding and client.offset_encoding[0] or "utf-16"
     if client.server_capabilities.documentHighlightProvider then
-        vim.api.nvim_exec(
-            [[
-            augroup lsp_document_highlight
-                autocmd! * <buffer>
-                autocmd CursorHold <buffer> lua vim.lsp.buf.document_highlight()
-                autocmd CursorMoved <buffer> lua vim.lsp.buf.clear_references()
-            augroup END
-        ]],
-            false
-        )
+        vim.api.nvim_create_autocmd({ "CursorHold", "CursorHoldI" }, {
+            buffer = bufnr,
+            callback = function()
+                local params = vim.lsp.util.make_position_params(nil, encoding)
+                vim.lsp.buf_request(0, "textDocument/documentHighlight", params)
+            end,
+        })
+        vim.api.nvim_create_autocmd("CursorMoved", {
+            buffer = bufnr,
+            callback = function()
+                vim.lsp.buf.clear_references()
+            end,
+        })
     end
 
     require "lsp_signature".on_attach()
@@ -49,22 +77,45 @@ end
 local default_capabilities = vim.lsp.protocol.make_client_capabilities()
 default_capabilities = require('cmp_nvim_lsp').default_capabilities(capabilities)
 
+-- call each lsp setup with the extended capabilities and on_attach, and optional settings.
 lspconfig.clangd.setup({
     cmd = { "/home/rcornall/.local/share/nvim/mason/bin/clangd",
             "--background-index",
             -- "--limit-references=1000000",
             -- "--limit-results=1000000",
-            -- "--query-driver=/home/rcornall/wd/unity/build/tmp/sysroots/x86_64/usr/bin/aarch64-poky-linux/aarch64-poky-linux-g++",
+            -- "--query-driver=/opt/toolchain/bin/aarch64-poky-linux-g++",
             "--header-insertion=never"},
     handlers = lsp_status.extensions.clangd.setup(),
     on_attach = on_attach,
     init_options = { clangdFileStatus = true},
     capabilities = vim.tbl_extend('keep', default_capabilities or {}, lsp_status.capabilities)
 })
-lspconfig.pylsp.setup({
+
+lspconfig.rust_analyzer.setup({
+    -- cmd = {".."},
+    --
+    cmd = { "/home/rcornall/.local/bin/rust-analyzer"},
+    settings = {
+        ["rust-analyzer"] = {
+            cargo = {
+                allTargets = false,
+            },
+            -- procMacro = {
+                -- enable = false
+            -- },
+            check = {
+                allTargets = false
+            },
+        }
+    },
     on_attach = on_attach,
     capabilities = vim.tbl_extend('keep', default_capabilities or {}, lsp_status.capabilities)
 })
+
+-- lspconfig.pylsp.setup({
+    -- on_attach = on_attach,
+    -- capabilities = vim.tbl_extend('keep', default_capabilities or {}, lsp_status.capabilities)
+-- })
 
 local lua_runtime_path = vim.split(package.path, ';')
 table.insert(lua_runtime_path, 'lua/?.lua')
@@ -99,16 +150,6 @@ lspconfig.vimls.setup({
     on_attach = on_attach,
     capabilities = vim.tbl_extend('keep', default_capabilities or {}, lsp_status.capabilities)
 })
-
-
--- Enable the following language servers
--- local servers = { 'clangd', 'rust_analyzer', 'pyright'}
--- for _, lsp in ipairs(servers) do
-  -- lspconfig[lsp].setup {
-    -- on_attach = on_attach,
-    -- capabilities = capabilities,
-  -- }
--- end
 
 -- luasnip setup
 local luasnip = require 'luasnip'
@@ -248,6 +289,8 @@ require('telescope').setup{
 
 -- treesitter
 require'nvim-treesitter.configs'.setup {
+    ensure_installed = { "c", "cpp", "lua", "rust", "python" },
+    auto_install = true,
     highlight = {
         enable = true
     },
@@ -256,26 +299,24 @@ require'nvim-treesitter.configs'.setup {
     },
     textobjects = {
         enable = true
-    }
+    },
+    additional_vim_regex_highlighting = false,
 }
 
--- smooth scroll
-require('neoscroll').setup({
-    -- All these keys will be mapped to their corresponding default scrolling animation
-    easing_function = "quadratic", -- Default easing function
-    mappings = {'<C-b>', '<C-f>',
-                'zt', 'zz', 'zb'},
-    hide_cursor = false,          -- Hide cursor while scrolling
-    stop_eof = false,             -- Stop at <EOF> when scrolling downwards
-    respect_scrolloff = false,   -- Stop scrolling when the cursor reaches the scrolloff margin of the file
-    cursor_scrolls_alone = true, -- The cursor will keep on scrolling even if the window cannot scroll further
-    pre_hook = nil,              -- Function to run before the scrolling animation starts
-    post_hook = nil,             -- Function to run after the scrolling animation ends
-    performance_mode = false,    -- Disable "Performance Mode" on all buffers.
+-- sync with system clipboard on focus
+vim.api.nvim_create_autocmd({ "FocusGained" }, {
+    pattern = { "*" },
+    command = [[call setreg("@", getreg("+"))]],
 })
-local t = {}
--- Syntax: t[keys] = {function, {function arguments}}
-t['zt']    = {'zt', {'330'}}
-t['zz']    = {'zz', {'330'}}
-t['zb']    = {'zb', {'330'}}
-require('neoscroll.config').set_mappings(t)
+vim.api.nvim_create_autocmd({ "FocusLost" }, {
+    pattern = { "*" },
+    command = [[call setreg("+", getreg("@"))]], 
+})
+vim.api.nvim_create_autocmd({ "VimSuspend" }, {
+    pattern = { "*" },
+    command = [[call setreg("+", getreg("@"))]], 
+})
+vim.api.nvim_create_autocmd({ "VimResume" }, {
+    pattern = { "*" },
+    command = [[call setreg("@", getreg("+"))]],
+})
