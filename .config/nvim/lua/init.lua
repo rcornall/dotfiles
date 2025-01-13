@@ -306,17 +306,25 @@ require'nvim-treesitter.configs'.setup {
 -- sync with system clipboard on focus
 vim.api.nvim_create_autocmd({ "FocusGained" }, {
     pattern = { "*" },
-    command = [[call setreg("@", getreg("+"))]],
+    callback = function()
+        vim.fn.setreg("@", vim.fn.getreg("+"))
+    end,
 })
-vim.api.nvim_create_autocmd({ "FocusLost" }, {
+vim.api.nvim_create_autocmd({ "TextYankPost" }, {
     pattern = { "*" },
-    command = [[call setreg("+", getreg("@"))]], 
+    callback = function()
+        vim.fn.setreg("+", vim.fn.getreg("@"))
+    end,
 })
 vim.api.nvim_create_autocmd({ "VimSuspend" }, {
     pattern = { "*" },
-    command = [[call setreg("+", getreg("@"))]], 
+    callback = function()
+        vim.fn.setreg("+", vim.fn.getreg("@"))
+    end,
 })
 vim.api.nvim_create_autocmd({ "VimResume" }, {
     pattern = { "*" },
-    command = [[call setreg("@", getreg("+"))]],
+    callback = function()
+        vim.fn.setreg("@", vim.fn.getreg("+"))
+    end,
 })
