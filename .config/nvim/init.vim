@@ -7,7 +7,7 @@ syntax on
 set title
 set shortmess+=I " hide launch screen
 set laststatus=2 " always show status line
-set updatetime=250 "ms
+set updatetime=150 "ms
 set tags+=./tags,tags,cpp_tags;
 
 set ruler
@@ -56,6 +56,9 @@ set formatoptions+=1        " when wrapping paragraphs,
 " set clipboard+=unnamedplus " slow startup time, use autocmd for wsl.
 set foldmethod=syntax
 set foldlevelstart=99
+
+set previewheight=20
+set cmdwinheight=10
 
 " terminal settings and colors
 set encoding=utf-8
@@ -110,13 +113,17 @@ filetype plugin indent on
 au BufRead,BufNewFile messages,*.messages set filetype=messages
 au BufRead,BufNewFile * if expand('%:t') == '' | set filetype=qf | endif
 au BufRead,BufNewFile *.overlay set filetype=dts
-au BufRead,BufNewFile SConscript,SConstruct set filetype=python
+au BufRead,BufNewFile SCompile,SConscript,SConstruct set filetype=python
+
 
 au Syntax * call matchadd('Todo',  '\W\zs\(TODO\|FIXME\|XXX\|BUG\|HACK\)')
 au Syntax * call matchadd('Debug', '\W\zs\(NOTE\|INFO\|IDEA\)')
 " }}}
 " ____________________________________________________________________________
 " Mappings {{{
+
+" Make InsertLeave trigger on ctrl-c.
+inoremap <C-C> <Esc>
 
 " normal regexs
 nnoremap / /\v
@@ -131,10 +138,9 @@ nnoremap Q <NOP>
 nnoremap <C-e> 2<C-e>
 nnoremap <C-y> 2<C-y>
 
-" enter=newline, but not in quickfix.
+" enter=newline, but not in quickfix.                     remove cmd and don't yank into register.
 nmap <S-Enter> O<Esc>
-" nmap <CR> o<Esc>
-nnoremap <expr> <CR> &buftype ==# 'quickfix' ? "\<CR>" : 'o<Esc>'
+nnoremap <expr> <CR> &buftype ==# 'quickfix' ? "\<CR>" : 'o<Esc>0"_D'
 
 " split navigation
 nnoremap <C-J> <C-W><C-J>
@@ -240,9 +246,9 @@ Plug 'google/vim-codefmt'
 Plug 'ntpeters/vim-better-whitespace'
 
 if has('nvim')
-autocmd TextYankPost * silent! lua vim.hl.on_yank {higroup='IncSearch', timeout=310}
+  autocmd TextYankPost * silent! lua vim.hl.on_yank {higroup='IncSearch', timeout=310}
 else
-Plug 'machakann/vim-highlightedyank'
+  Plug 'machakann/vim-highlightedyank'
 end
 
 Plug 'tpope/vim-surround'
@@ -344,6 +350,9 @@ Plug 'ap/vim-css-color'
 Plug 'mcchrish/zenbones.nvim'
 Plug 'rktjmp/lush.nvim'
 " let g:zenbones_compat = 1
+Plug 'NLKNguyen/papercolor-theme'
+
+Plug 'github/copilot.vim'
 
 call plug#end()
 call glaive#Install()
@@ -371,10 +380,15 @@ end
 
 nnoremap <c-p> <cmd>lua require'telescope.builtin'.find_files{find_command = { "rg", "--files", "--no-ignore-parent" }}<cr>
 nnoremap <c-P> <cmd>lua require'telescope.builtin'.find_files{find_command = { "rg", "--files", "--hidden",  "--no-ignore-parent" }}<cr>
-nnoremap <c-a> <cmd>lua require'telescope.builtin'.grep_string{vimgrep_arguments = { "rg", "--no-ignore-parent", "--color=never", "--no-heading", "--with-filename", "--line-number", "--column", "--smart-case" }, }<cr>
+nnoremap <c-a> <cmd>lua require'telescope.builtin'.grep_string{vimgrep_arguments = { "rg", "--no-ignore-parent", "--color=never", "--no-heading", "--with-filename", "--line-number", "--column", "--smart-case", "-g", "!compile_commands.json*" }, }<cr>
+" Jan 9 2025: fixes      - removed warns in vim runtime after install. edited buftabline plug to remove guioptions part.
+" -- ROBS: change scroll limit to 8000..
+" __scrolling_limit = tonumber(vim.F.if_nil(opts.temp__scrolling_limit, 8000)),
+" add ignore compile_commands.
+" keep --no-ignore-parent, so use gitignore when in proj root only.
 nnoremap <c-t> <cmd>lua require'telescope.builtin'.lsp_workspace_symbols{query=vim.fn.expand "<cword>", fname_width=50, symbol_width=20}<cr>
 nnoremap <leader>t <cmd>Telescope lsp_dynamic_workspace_symbols<cr>
-command! -nargs=1 Find lua require'telescope.builtin'.grep_string{ shorten_path = true, search =<q-args> }<cr>
+command! -nargs=1 Find lua require'telescope.builtin'.grep_string{vimgrep_arguments = { "rg", "--no-ignore-parent", "--color=never", "--no-heading", "--with-filename", "--line-number", "--column", "--smart-case", "-g", "!compile_commands.json*" }, shorten_path = true, search =<q-args> }<cr>
 nnoremap <leader>a :Find 
 nnoremap <leader>b <cmd>Telescope buffers<cr>
 nnoremap <leader>qf <cmd>lua vim.lsp.buf.code_action()<cr>
@@ -417,11 +431,11 @@ end
 
 Glaive codefmt plugin[mappings]
 " Formats current line only
-nnoremap <silent> <leader>ff :FormatLines<CR>
+" nnoremap <silent> <leader>ff :FormatLines<CR>
 " Formats visual selection
-vnoremap <silent> <leader>ff :FormatLines<CR>
+" vnoremap <silent> <leader>ff :FormatLines<CR>
 " Formats entire file
-nnoremap <silent> <leader>fl :FormatCode<CR>
+" nnoremap <silent> <leader>fl :FormatCode<CR>
 
 " workaround to get gutter to stay in goyo
 function! MyGoyo()
@@ -457,6 +471,16 @@ let g:NERDCustomDelimiters = {
       \ }
 nnoremap <C-_> :call nerdcommenter#Comment(0,"toggle")<CR>
 vnoremap <C-_> :call nerdcommenter#Comment(0,"toggle")<CR>
+
+" map copy filename to register
+if has('win32')
+  " Convert slashes to backslashes for Windows.
+  nmap ,cs :let @*=substitute(expand("%"), "/", "\\", "g")<CR>
+  nmap ,cl :let @*=substitute(expand("%:p"), "/", "\\", "g")<CR>
+else
+  nmap ,cs :let @*=expand("%")<CR>
+  nmap ,cl :let @*=expand("%:p")<CR>
+endif
 
 " move through git hunks
 nmap <leader>j <plug>(GitGutterNextHunk)
@@ -566,11 +590,7 @@ endfunction
 
 function! s:btags()
   try
-    call fzf#run({
-    \ 'source':  s:btags_source(),
-    \ 'options': '+m -d "\t" --with-nth 1,4.. -n 1 --tiebreak=index',
-    \ 'down':    '40%',
-    \ 'sink':    function('s:btags_sink')})
+    call fzf#run({ 'source':  s:btags_source(), 'options': '+m -d "\t" --with-nth 1,4.. -n 1 --tiebreak=index', 'down':    '40%', 'sink':    function('s:btags_sink')})
   catch
     echohl WarningMsg
     echom v:exception
@@ -581,13 +601,13 @@ endfunction
 " with no lsp, fallback to old custom b(uffer) tags.
 " TODO this can be done in on_attach...
 function! Btags()
-  let ret = execute("lua require'telescope.builtin'.lsp_document_symbols{symbol_width=50}")
-  if ret =~ "no client"
+  let ret = execute("lua require'telescope.builtin'.lsp_document_symbols{symbol_width=50}", "")
+  if ret =~ "no client" || ret =~ "No results"
     echo "falling back to btags."
     execute("call s:btags()")
   endif
 endfunction
-nnoremap <leader>r :call Btags()<cr>
+nnoremap <leader>f :call Btags()<cr>
 
 function! s:todo() abort
   let entries = []
@@ -621,6 +641,7 @@ function! Spawn_note_window() abort
       if buf_name == file_name
         " Focus on the existing floating window
         call nvim_set_current_win(win)
+        set filetype=markdown
         return
       endif
     endif
@@ -631,14 +652,14 @@ function! Spawn_note_window() abort
   " Get current UI
   let ui = nvim_list_uis()[0]
   " Dimension
-  let width = (ui.width/2)
-  let height = (ui.height/2)
+  let width = (ui.width/1.6)
+  let height = (ui.height/1.6)
   " Options for new window
   let opts = {'relative': 'editor',
-              \ 'width': width,
-              \ 'height': height,
-              \ 'col': (ui.width - width)/2,
-              \ 'row': (ui.height - height)/2,
+              \ 'width': float2nr(width),
+              \ 'height': float2nr(height),
+              \ 'col': (ui.width - float2nr(width))/2,
+              \ 'row': (ui.height - float2nr(height))/2,
               \ 'anchor': 'NW',
               \ 'style': 'minimal',
               \ 'border': 'single',
@@ -648,16 +669,17 @@ function! Spawn_note_window() abort
   " Now we can actually open or create the note for the day?
   if filereadable(expand(file_name))
     execute "e ".fnameescape(file_name)
-    let column = 80
+    let column = 157
     execute "set textwidth=".column
     execute "set colorcolumn=".column
     " execute "norm Go"
     execute "norm G"
     execute "norm zz"
     " execute "startinsert"
+    set filetype=markdown
   else
     execute "e ".fnameescape(file_name)
-    let column = 80
+    let column = 157
     execute "set textwidth=".column
     execute "set colorcolumn=".column
     execute "norm Gi# ".strftime("%d-%m-%y")
@@ -665,6 +687,7 @@ function! Spawn_note_window() abort
     execute "norm Gi- " 
     " execute "norm zz"
     " execute "startinsert"
+    set filetype=markdown
   endif
 endfunction
 nmap <silent> <leader>n :call Spawn_note_window() <CR>
@@ -690,9 +713,9 @@ nmap <silent> <leader>n :call Spawn_note_window() <CR>
 " hi Normal guibg=NONE
 
 " Tomorrow theme
-colo Tomorrow-Night-Bright
-hi Search guibg=#f0e971 guifg=#333312
-highlight link @keyword Define
+" colo Tomorrow-Night-Bright
+" hi Search guibg=#f0e971 guifg=#333312
+" highlight link @keyword Define
 " colo base16-tomorrow-night
 
 " Gruvbox
